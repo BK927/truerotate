@@ -88,7 +88,7 @@ internal sealed class TrayContext : ApplicationContext
                 uint d = deg;  // capture for lambda
                 var item = new ToolStripMenuItem($"{d}°")
                 {
-                    Checked     = mon.Rotation == d,
+                    Checked      = mon.Rotation == d,
                     CheckOnClick = false,
                 };
                 item.Click += (_, _) => ApplyRotation(mon, d);
@@ -97,6 +97,11 @@ internal sealed class TrayContext : ApplicationContext
 
             menu.Items.Add(sub);
         }
+
+        menu.Items.Add(new ToolStripSeparator());
+
+        // Settings
+        menu.Items.Add(new ToolStripMenuItem("Settings…", null, (_, _) => OpenSettings()));
 
         menu.Items.Add(new ToolStripSeparator());
 
@@ -109,6 +114,12 @@ internal sealed class TrayContext : ApplicationContext
         menu.Items.Add(autoItem);
 
         menu.Items.Add(new ToolStripMenuItem("Exit", null, (_, _) => ExitApp()));
+    }
+
+    private void OpenSettings()
+    {
+        using var form = new SettingsForm(_store, ReregisterHotkeys);
+        form.ShowDialog();
     }
 
     private void ApplyRotation(MonitorInfo mon, uint degrees)
@@ -132,25 +143,22 @@ internal sealed class TrayContext : ApplicationContext
 
     private void RegisterHotkeys()
     {
-        HOT_KEY_MODIFIERS mods =
-            HOT_KEY_MODIFIERS.MOD_CONTROL |
-            HOT_KEY_MODIFIERS.MOD_ALT     |
-            HOT_KEY_MODIFIERS.MOD_SHIFT   |
-            HOT_KEY_MODIFIERS.MOD_NOREPEAT;
+        var hk = _store.HotkeyBindings;
 
-        var registrations = new (int id, uint vk, string label)[]
+        var registrations = new (int id, HotkeyBinding binding)[]
         {
-            (HkUp,    0x26, "Ctrl+Alt+Shift+Up"),
-            (HkRight, 0x27, "Ctrl+Alt+Shift+Right"),
-            (HkDown,  0x28, "Ctrl+Alt+Shift+Down"),
-            (HkLeft,  0x25, "Ctrl+Alt+Shift+Left"),
+            (HkUp,    hk.Rotate0),
+            (HkRight, hk.Rotate90),
+            (HkDown,  hk.Rotate180),
+            (HkLeft,  hk.Rotate270),
         };
 
         var failed = new List<string>();
-        foreach (var (id, vk, label) in registrations)
+        foreach (var (id, binding) in registrations)
         {
-            if (!PInvoke.RegisterHotKey(_hotkeyWindow.HWND, id, mods, vk))
-                failed.Add(label);
+            uint vk = binding.ToVirtualKey();
+            if (vk == 0 || !PInvoke.RegisterHotKey(_hotkeyWindow.HWND, id, binding.ToHotKeyModifiers(), vk))
+                failed.Add(binding.DisplayText);
         }
 
         if (failed.Count > 0)
@@ -161,6 +169,21 @@ internal sealed class TrayContext : ApplicationContext
                 tipText:  $"Could not register: {string.Join(", ", failed)}.\nAnother app may be using these keys.",
                 tipIcon:  ToolTipIcon.Warning);
         }
+    }
+
+    private void UnregisterHotkeys()
+    {
+        PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkUp);
+        PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkRight);
+        PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkDown);
+        PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkLeft);
+    }
+
+    /// <summary>Called after settings are saved to pick up new bindings.</summary>
+    public void ReregisterHotkeys()
+    {
+        UnregisterHotkeys();
+        RegisterHotkeys();
     }
 
     private void OnHotkey(int id)
@@ -179,11 +202,34 @@ internal sealed class TrayContext : ApplicationContext
         try
         {
             var monitors = DisplayService.EnumerateMonitors();
-            var target   = DisplayService.GetMonitorUnderCursor(monitors) ?? monitors.FirstOrDefault();
-            if (target is null) return;
+            if (monitors.Count == 0) return;
 
-            DisplayService.SetRotation(target, degrees);
-            _store.SetDesired(target.DevicePath, degrees);
+            switch (_store.HotkeyTarget)
+            {
+                case "primary":
+                {
+                    string primaryName = Screen.PrimaryScreen?.DeviceName ?? "";
+                    var target = monitors.FirstOrDefault(m =>
+                        string.Equals(m.GdiDeviceName, primaryName, StringComparison.OrdinalIgnoreCase))
+                        ?? monitors[0];
+                    ApplyAndPersist(target, degrees);
+                    break;
+                }
+
+                case "all":
+                {
+                    foreach (var mon in monitors)
+                        ApplyAndPersist(mon, degrees);
+                    break;
+                }
+
+                default:  // "cursor"
+                {
+                    var target = DisplayService.GetMonitorUnderCursor(monitors) ?? monitors[0];
+                    ApplyAndPersist(target, degrees);
+                    break;
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -193,6 +239,12 @@ internal sealed class TrayContext : ApplicationContext
                 tipText:  ex.Message,
                 tipIcon:  ToolTipIcon.Error);
         }
+    }
+
+    private void ApplyAndPersist(MonitorInfo mon, uint degrees)
+    {
+        DisplayService.SetRotation(mon, degrees);
+        _store.SetDesired(mon.DevicePath, degrees);
     }
 
     // ── Exit ──────────────────────────────────────────────────────────────────
@@ -207,12 +259,7 @@ internal sealed class TrayContext : ApplicationContext
     {
         if (disposing)
         {
-            // Unregister all hotkeys
-            PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkUp);
-            PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkRight);
-            PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkDown);
-            PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkLeft);
-
+            UnregisterHotkeys();
             _reapply.Dispose();
             _hotkeyWindow.Dispose();
             _tray.Dispose();
