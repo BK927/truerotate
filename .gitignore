@@ -16,3 +16,6 @@ obj/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Claude Code local agent config
+.claude/

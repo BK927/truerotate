@@ -18,11 +18,16 @@ internal sealed class TrayContext : ApplicationContext
     private const int HkDown  = 3;  // → 180°
     private const int HkLeft  = 4;  // → 270°
 
-    private readonly NotifyIcon   _tray;
-    private readonly HotkeyWindow _hotkeyWindow;
+    private readonly NotifyIcon        _tray;
+    private readonly HotkeyWindow      _hotkeyWindow;
+    private readonly OrientationStore  _store;
+    private readonly ReapplyController _reapply;
 
     public TrayContext()
     {
+        _store   = new OrientationStore();
+        _reapply = new ReapplyController(_store, ShowWarning);
+
         _tray = new NotifyIcon
         {
             Icon    = CreatePlaceholderIcon(),
@@ -33,9 +38,12 @@ internal sealed class TrayContext : ApplicationContext
         _tray.ContextMenuStrip = new ContextMenuStrip();
         _tray.ContextMenuStrip.Opening += (_, _) => RebuildMenu(_tray.ContextMenuStrip);
 
-        _hotkeyWindow = new HotkeyWindow(OnHotkey);
+        _hotkeyWindow = new HotkeyWindow(OnHotkey, _reapply.OnDisplayChange);
         RegisterHotkeys();
     }
+
+    private void ShowWarning(string title, string text) =>
+        _tray.ShowBalloonTip(6000, title, text, ToolTipIcon.Warning);
 
     // ── Icon ─────────────────────────────────────────────────────────────────
 
@@ -91,6 +99,15 @@ internal sealed class TrayContext : ApplicationContext
         }
 
         menu.Items.Add(new ToolStripSeparator());
+
+        var autoItem = new ToolStripMenuItem("Auto-reapply on display change")
+        {
+            Checked      = _store.AutoReapply,
+            CheckOnClick = true,
+        };
+        autoItem.CheckedChanged += (_, _) => _store.AutoReapply = autoItem.Checked;
+        menu.Items.Add(autoItem);
+
         menu.Items.Add(new ToolStripMenuItem("Exit", null, (_, _) => ExitApp()));
     }
 
@@ -99,6 +116,7 @@ internal sealed class TrayContext : ApplicationContext
         try
         {
             DisplayService.SetRotation(mon, degrees);
+            _store.SetDesired(mon.DevicePath, degrees);
         }
         catch (Exception ex)
         {
@@ -165,6 +183,7 @@ internal sealed class TrayContext : ApplicationContext
             if (target is null) return;
 
             DisplayService.SetRotation(target, degrees);
+            _store.SetDesired(target.DevicePath, degrees);
         }
         catch (Exception ex)
         {
@@ -194,6 +213,7 @@ internal sealed class TrayContext : ApplicationContext
             PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkDown);
             PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkLeft);
 
+            _reapply.Dispose();
             _hotkeyWindow.Dispose();
             _tray.Dispose();
         }

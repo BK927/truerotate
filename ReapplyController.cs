@@ -1,0 +1,121 @@
+using System.Windows.Forms;
+
+namespace RotatePlus;
+
+/// <summary>
+/// Watches for WM_DISPLAYCHANGE events and re-applies the user's desired
+/// orientations whenever an external agent (e.g. the NVIDIA app) resets them.
+///
+/// Idempotency / loop safety:
+///   Reconcile() only calls SetRotation when rotation != desired. Our own
+///   SetRotation causes another WM_DISPLAYCHANGE → debounce → Reconcile →
+///   nothing to fix → loop stops. No timer masking is needed.
+///
+/// Anti-thrash:
+///   If ≥5 corrective calls happen within 10 s without a clean Reconcile in
+///   between, auto-reapply is paused for that window and one balloon is shown.
+///   It resets once Reconcile finds everything already correct.
+/// </summary>
+internal sealed class ReapplyController : IDisposable
+{
+    private const int DebounceMs      = 400;
+    private const int ThrashLimit     = 5;
+    private const int ThrashWindowMs  = 10_000;
+
+    private readonly OrientationStore         _store;
+    private readonly Action<string, string>   _showWarning;   // (title, text)
+    private readonly System.Windows.Forms.Timer _debounce;
+
+    // Anti-thrash state
+    private int      _correctiveCount;
+    private DateTime _firstCorrectiveTime = DateTime.MinValue;
+    private bool     _thrashPaused;
+
+    public ReapplyController(OrientationStore store, Action<string, string> showWarning)
+    {
+        _store       = store;
+        _showWarning = showWarning;
+
+        _debounce = new System.Windows.Forms.Timer { Interval = DebounceMs };
+        _debounce.Tick += (_, _) =>
+        {
+            _debounce.Stop();
+            Reconcile();
+        };
+    }
+
+    /// <summary>Called by HotkeyWindow when WM_DISPLAYCHANGE arrives.</summary>
+    public void OnDisplayChange()
+    {
+        // Restart the debounce; coalesces rapid NVIDIA event bursts.
+        _debounce.Stop();
+        _debounce.Start();
+    }
+
+    private void Reconcile()
+    {
+        if (!_store.AutoReapply) return;
+
+        var desired = _store.All();
+        if (desired.Count == 0) return;
+
+        List<MonitorInfo> monitors;
+        try { monitors = DisplayService.EnumerateMonitors(); }
+        catch { return; }  // Can't enumerate; skip this cycle.
+
+        bool anyMismatch = false;
+
+        foreach (var mon in monitors)
+        {
+            if (!desired.TryGetValue(mon.DevicePath, out uint want)) continue;
+            if (mon.Rotation == want) continue;
+
+            anyMismatch = true;
+
+            // While thrash-paused, keep detecting (so the settled-state reset
+            // below can self-heal once the display stops reverting) but stop
+            // issuing corrections.
+            if (_thrashPaused) continue;
+
+            // Anti-thrash accounting
+            var now = DateTime.UtcNow;
+            if (_firstCorrectiveTime == DateTime.MinValue
+                || (now - _firstCorrectiveTime).TotalMilliseconds > ThrashWindowMs)
+            {
+                _firstCorrectiveTime = now;
+                _correctiveCount     = 0;
+            }
+
+            _correctiveCount++;
+
+            if (_correctiveCount > ThrashLimit)
+            {
+                _thrashPaused = true;
+                _showWarning(
+                    "rotate+ — orientation fighting",
+                    "Couldn't hold orientation — the display keeps reverting. " +
+                    "Auto-reapply is paused. Trigger a rotation or restart the app to re-enable.");
+                return;
+            }
+
+            try
+            {
+                DisplayService.SetRotation(mon, want);
+            }
+            catch (Exception ex)
+            {
+                _showWarning("rotate+ — reapply failed", ex.Message);
+            }
+        }
+
+        if (!anyMismatch)
+        {
+            // Everything is correct: reset thrash state and un-pause.
+            _correctiveCount     = 0;
+            _firstCorrectiveTime = DateTime.MinValue;
+            _thrashPaused        = false;
+        }
+    }
+
+    public void Dispose() => _debounce.Dispose();
+}

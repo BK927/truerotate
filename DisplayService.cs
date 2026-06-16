@@ -226,6 +226,13 @@ public static class DisplayService
         fixed (DISPLAYCONFIG_PATH_INFO* pPaths = paths)
         fixed (DISPLAYCONFIG_MODE_INFO* pModes = modes)
         {
+            // SDC_FORCE_MODE_ENUMERATION is the cure for the NVIDIA bug: once the NVIDIA
+            // app has touched display settings, a plain rotation apply updates the image
+            // but leaves the mouse cursor's coordinate transform stuck at the old
+            // orientation (wrong axis + unreachable dead zones). Forcing mode
+            // re-enumeration rebuilds the cursor transform on every rotation. Verified on
+            // real hardware (NVIDIA RTX 5060 Ti); legacy ChangeDisplaySettingsEx apply is
+            // blocked by the driver, so this CCD path is the only working route.
             sdcErr = PInvoke.SetDisplayConfig(
                 (uint)paths.Length,
                 pPaths,
@@ -233,7 +240,8 @@ public static class DisplayService
                 pModes,
                 Windows.Win32.Devices.Display.SET_DISPLAY_CONFIG_FLAGS.SDC_APPLY
                     | Windows.Win32.Devices.Display.SET_DISPLAY_CONFIG_FLAGS.SDC_USE_SUPPLIED_DISPLAY_CONFIG
-                    | Windows.Win32.Devices.Display.SET_DISPLAY_CONFIG_FLAGS.SDC_SAVE_TO_DATABASE);
+                    | Windows.Win32.Devices.Display.SET_DISPLAY_CONFIG_FLAGS.SDC_SAVE_TO_DATABASE
+                    | Windows.Win32.Devices.Display.SET_DISPLAY_CONFIG_FLAGS.SDC_FORCE_MODE_ENUMERATION);
         }
 
         if (sdcErr == 0 /* ERROR_SUCCESS */)

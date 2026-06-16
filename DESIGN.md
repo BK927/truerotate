@@ -151,3 +151,19 @@ rotate+ (트레이 앱, 보이는 창 없음)
 4. DisplayWatcher + ReapplyController → 자동 재적용.
 5. **실 NVIDIA 머신에서 §8 검증.**
 6. 영속화 / 자동시작 / 단일 인스턴스 마감.
+
+## 10. 해결 결과 (실증 완료, 2026-06-16)
+
+§2의 "패널 스캔아웃 desync" 모델은 **수정됨**. 실제 메커니즘과 치유법:
+
+- **진짜 원인:** NVIDIA 앱이 디스플레이 설정을 한 번 건드리면 머신이 **반영구적**
+  상태가 된다(재부팅에도 지속). 이 상태에서 **평면 CCD 회전**(`SetDisplayConfig`로 path
+  rotation만 변경)은 화면 이미지와 모든 Windows 방향 계층(CCD/GDI/DEVMODE)을 갱신하지만,
+  **마우스 커서 좌표 변환은 재구축하지 않는다.** → 화면 방향과 커서 매핑이 어긋나
+  마우스 축 오작동 + 도달 불가 데드존 발생.
+- **치유법(양방향 실증 완료):** `SetDisplayConfig` 플래그에 **`SDC_FORCE_MODE_ENUMERATION`**
+  추가. 모드 재열거를 강제해 회전할 때마다 커서 변환을 재구축 → 버그를 *제거*가 아니라
+  매 회전마다 *무력화*. `DisplayService.ApplyRotation`에 반영됨.
+- **막다른 길:** 레거시 `ChangeDisplaySettingsEx` 적용은 드라이버가 차단(`CDS_TEST`=0,
+  `CDS_UPDATEREGISTRY`=-2 BADMODE). CCD가 유일한 경로. NVIDIA는 리셋 시 CCD path 인덱스/
+  주모니터를 재정렬하므로 모니터 키는 `monitorDevicePath`로 고정.
