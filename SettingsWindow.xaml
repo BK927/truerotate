@@ -1,0 +1,135 @@
+<Window
+    x:Class="TrueRotate.SettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    Title="TrueRotate Settings">
+
+    <Grid>
+        <Grid.Resources>
+            <Style x:Key="ComboBadge" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource ControlFillColorDefaultBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="Padding" Value="10,5"/>
+                <Setter Property="MinWidth" Value="158"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+            <Style x:Key="ComboText" TargetType="TextBlock">
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="TextAlignment" Value="Center"/>
+                <Setter Property="FontFamily" Value="Consolas"/>
+                <Setter Property="FontSize" Value="12"/>
+            </Style>
+        </Grid.Resources>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── Title bar (drag region) ── -->
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Height="44" Padding="16,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Image Grid.Column="0" x:Name="TitleBarIcon"
+                   Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="TrueRotate Settings"
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- ── Scrollable content ── -->
+        <ScrollViewer Grid.Row="1" Padding="20,4,20,16" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="4">
+
+                <!-- Hotkeys -->
+                <TextBlock Text="Rotation hotkeys"
+                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                           Margin="2,8,0,0"/>
+                <TextBlock Text="Global shortcuts that rotate the target monitor. Each needs at least one modifier (Ctrl / Alt / Shift)."
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextWrapping="Wrap" Margin="2,0,0,6"/>
+
+                <controls:SettingsCard x:Name="Card0" Header="Rotate to 0°" Description="Landscape">
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <Border Style="{StaticResource ComboBadge}">
+                            <TextBlock x:Name="Combo0" Style="{StaticResource ComboText}"/>
+                        </Border>
+                        <Button x:Name="Btn0" Tag="0" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
+                    </StackPanel>
+                </controls:SettingsCard>
+
+                <controls:SettingsCard x:Name="Card1" Header="Rotate to 90°" Description="Portrait (clockwise)">
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <Border Style="{StaticResource ComboBadge}">
+                            <TextBlock x:Name="Combo1" Style="{StaticResource ComboText}"/>
+                        </Border>
+                        <Button x:Name="Btn1" Tag="1" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
+                    </StackPanel>
+                </controls:SettingsCard>
+
+                <controls:SettingsCard x:Name="Card2" Header="Rotate to 180°" Description="Landscape (flipped)">
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <Border Style="{StaticResource ComboBadge}">
+                            <TextBlock x:Name="Combo2" Style="{StaticResource ComboText}"/>
+                        </Border>
+                        <Button x:Name="Btn2" Tag="2" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
+                    </StackPanel>
+                </controls:SettingsCard>
+
+                <controls:SettingsCard x:Name="Card3" Header="Rotate to 270°" Description="Portrait (counter-clockwise)">
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <Border Style="{StaticResource ComboBadge}">
+                            <TextBlock x:Name="Combo3" Style="{StaticResource ComboText}"/>
+                        </Border>
+                        <Button x:Name="Btn3" Tag="3" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
+                    </StackPanel>
+                </controls:SettingsCard>
+
+                <InfoBar x:Name="ErrorBar" IsOpen="False" Severity="Error" IsClosable="True" Margin="0,6,0,0"/>
+
+                <!-- Behavior -->
+                <TextBlock Text="Behavior"
+                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                           Margin="2,18,0,6"/>
+
+                <controls:SettingsCard Header="Rotate target" Description="Which monitor the hotkeys act on">
+                    <ComboBox x:Name="TargetCombo" MinWidth="170">
+                        <ComboBoxItem Content="Monitor under cursor"/>
+                        <ComboBoxItem Content="Primary monitor"/>
+                        <ComboBoxItem Content="All monitors"/>
+                    </ComboBox>
+                </controls:SettingsCard>
+
+                <controls:SettingsCard Header="Start with Windows" Description="Launch TrueRotate automatically at sign-in">
+                    <ToggleSwitch x:Name="AutostartToggle" MinWidth="0"/>
+                </controls:SettingsCard>
+
+                <controls:SettingsCard Header="Auto-reapply on display change"
+                                       Description="Re-apply your saved orientation when something else (e.g. the NVIDIA app) changes it. Turn off to let other tools rotate.">
+                    <ToggleSwitch x:Name="AutoReapplyToggle" MinWidth="0"/>
+                </controls:SettingsCard>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ── Action bar ── -->
+        <Border Grid.Row="2"
+                Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                Padding="20,14">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <Button Content="Cancel" MinWidth="90" Click="OnCancel"/>
+                <Button Content="Save" MinWidth="90" Style="{StaticResource AccentButtonStyle}" Click="OnSave"/>
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</Window>

@@ -17,3 +17,16 @@ GetMonitorInfo
 MONITORINFOEXW
 DISPLAYCONFIG_SOURCE_DEVICE_NAME
 AttachConsole
+CreateWindowEx
+RegisterClassEx
+DestroyWindow
+DefWindowProc
+GetModuleHandle
+WNDCLASSEXW
+WNDPROC
+PostQuitMessage
+CreatePopupMenu
+AppendMenu
+TrackPopupMenu
+DestroyMenu
+SetForegroundWindow

@@ -1,4 +1,4 @@
-using System.Windows.Forms;
+using Microsoft.UI.Dispatching;
 
 namespace TrueRotate;
 
@@ -18,13 +18,13 @@ namespace TrueRotate;
 /// </summary>
 internal sealed class ReapplyController : IDisposable
 {
-    private const int DebounceMs      = 400;
-    private const int ThrashLimit     = 5;
-    private const int ThrashWindowMs  = 10_000;
+    private const int DebounceMs     = 400;
+    private const int ThrashLimit    = 5;
+    private const int ThrashWindowMs = 10_000;
 
-    private readonly OrientationStore         _store;
-    private readonly Action<string, string>   _showWarning;   // (title, text)
-    private readonly System.Windows.Forms.Timer _debounce;
+    private readonly OrientationStore       _store;
+    private readonly Action<string, string> _showWarning;   // (title, text)
+    private readonly DispatcherQueueTimer   _debounce;
 
     // Anti-thrash state
     private int      _correctiveCount;
@@ -36,12 +36,12 @@ internal sealed class ReapplyController : IDisposable
         _store       = store;
         _showWarning = showWarning;
 
-        _debounce = new System.Windows.Forms.Timer { Interval = DebounceMs };
-        _debounce.Tick += (_, _) =>
-        {
-            _debounce.Stop();
-            Reconcile();
-        };
+        // DispatcherQueueTimer fires on the UI thread (same as WinForms Timer.Tick)
+        var dq = DispatcherQueue.GetForCurrentThread();
+        _debounce = dq.CreateTimer();
+        _debounce.Interval = TimeSpan.FromMilliseconds(DebounceMs);
+        _debounce.IsRepeating = false;
+        _debounce.Tick += (_, _) => Reconcile();
     }
 
     /// <summary>Called by HotkeyWindow when WM_DISPLAYCHANGE arrives.</summary>
@@ -117,5 +117,5 @@ internal sealed class ReapplyController : IDisposable
         }
     }
 
-    public void Dispose() => _debounce.Dispose();
+    public void Dispose() => _debounce.Stop();
 }

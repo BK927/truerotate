@@ -2,21 +2,56 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>x64</PlatformTarget>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>TrueRotate</AssemblyName>
     <RootNamespace>TrueRotate</RootNamespace>
-    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>app_icon.ico</ApplicationIcon>
+
+    <!-- WinUI 3 / Windows App SDK -->
+    <UseWinUI>true</UseWinUI>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <EnableMsixTooling>true</EnableMsixTooling>
+
+    <!-- Dual-mode CLI entry point -->
+    <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+
+    <!-- App manifest (DPI awareness, UAC) -->
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- WinUI 3 / Windows App SDK -->
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7705" />
+
+    <!-- Tray icon helper -->
+    <PackageReference Include="H.NotifyIcon.WinUI" Version="2.1.0" />
+
+    <!-- CsWin32 P/Invoke source generator -->
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+
+    <!-- Fluent SettingsCard / SettingsExpander controls (Windows 11 settings look) -->
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="app_icon.ico">
+      <LogicalName>app_icon.ico</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="app_icon.png">
+      <LogicalName>app_icon.png</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+
 
 </Project>
