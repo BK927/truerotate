@@ -1,3 +1,4 @@
+using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI.Input;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -10,19 +11,27 @@ using Windows.System;
 namespace TrueRotate;
 
 /// <summary>
-/// Settings window. Lets the user rebind hotkeys (press-to-capture),
-/// choose the rotation target, and toggle autostart and auto-reapply.
+/// Settings window: rebind the global hotkeys, optional per-monitor hotkey sets,
+/// rotate target, autostart and auto-reapply. Global + per-monitor rows share one
+/// capture model (<see cref="Slot"/>).
 /// </summary>
 public sealed partial class SettingsWindow : Window
 {
-    private static readonly string[] ActionLabels = ["0°", "90°", "180°", "270°"];
+    /// <summary>One editable hotkey row — global (mandatory) or per-monitor (optional).</summary>
+    private sealed class Slot
+    {
+        public required HotkeyBinding Working;   // working copy; committed on Save
+        public required TextBlock     Combo;     // shows the combo or "Not set"
+        public required Button        Rebind;
+        public Button?                Clear;     // only for optional (per-monitor) rows
+        public required string        Label;     // for error messages
+        public required bool          Optional;
+        public string?                DevicePath; // null = global set
+        public uint                   Degrees;
+    }
 
-    // Working copies of bindings; Cancel leaves the store untouched.
-    private readonly HotkeyBinding[] _bindings = new HotkeyBinding[4];
-    private int _capturingRow = -1;
-
-    private Button[]    _btns   = null!;
-    private TextBlock[] _combos = null!;
+    private readonly List<Slot> _slots = new();
+    private Slot? _capturing;
 
     private readonly OrientationStore _store;
     private readonly Action           _reregisterHotkeys;
@@ -34,13 +43,11 @@ public sealed partial class SettingsWindow : Window
 
         this.InitializeComponent();
 
-        // Mica + custom title bar
         this.SystemBackdrop = new MicaBackdrop();
         this.ExtendsContentIntoTitleBar = true;
         this.SetTitleBar(AppTitleBar);
         LoadTitleBarIcon();
 
-        // Window chrome: sensible size, resizable, no maximize
         var presenter = OverlappedPresenter.Create();
         presenter.IsMaximizable = false;
         presenter.IsResizable   = true;
@@ -48,18 +55,8 @@ public sealed partial class SettingsWindow : Window
         this.AppWindow.Title = "TrueRotate Settings";
         SizeAndCenter();
 
-        _btns   = [Btn0,   Btn1,   Btn2,   Btn3];
-        _combos = [Combo0, Combo1, Combo2, Combo3];
-
-        // Clone current bindings (Cancel discards)
-        var hk = store.HotkeyBindings;
-        _bindings[0] = hk.Rotate0.Clone();
-        _bindings[1] = hk.Rotate90.Clone();
-        _bindings[2] = hk.Rotate180.Clone();
-        _bindings[3] = hk.Rotate270.Clone();
-
-        for (int i = 0; i < 4; i++)
-            _combos[i].Text = _bindings[i].DisplayText;
+        BuildGlobalSlots();
+        BuildPerMonitorSection();
 
         TargetCombo.SelectedIndex = store.HotkeyTarget switch
         {
@@ -67,124 +64,152 @@ public sealed partial class SettingsWindow : Window
             "all"     => 2,
             _         => 0,
         };
-
         AutostartToggle.IsOn   = store.Autostart;
         AutoReapplyToggle.IsOn = store.AutoReapply;
 
+        RefreshSlots();
         this.Content.KeyDown += OnKeyDown;
     }
 
-    // ── Title bar icon ────────────────────────────────────────────────────────
+    // ── Slot construction ──────────────────────────────────────────────────────
 
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    private static extern uint GetDpiForWindow(IntPtr hwnd);
-
-    /// <summary>
-    /// Sizes the window from a DIP target scaled to the current DPI, clamps it to the
-    /// monitor work area (so it's never off-screen on small/low-res displays), and centers
-    /// it. The ScrollViewer keeps all content reachable if the clamp makes the window
-    /// shorter than its content.
-    /// </summary>
-    private void SizeAndCenter()
+    private void BuildGlobalSlots()
     {
-        const double dipW = 580, dipH = 720;
+        var hk = _store.HotkeyBindings;
+        AddGlobalSlot(Combo0, Btn0, hk.Rotate0.Clone(),   0,   "Rotate 0°");
+        AddGlobalSlot(Combo1, Btn1, hk.Rotate90.Clone(),  90,  "Rotate 90°");
+        AddGlobalSlot(Combo2, Btn2, hk.Rotate180.Clone(), 180, "Rotate 180°");
+        AddGlobalSlot(Combo3, Btn3, hk.Rotate270.Clone(), 270, "Rotate 270°");
+    }
 
-        double scale = GetDpiForWindow(WinRT.Interop.WindowNative.GetWindowHandle(this)) / 96.0;
-        if (scale <= 0) scale = 1.0;
-
-        int w = (int)(dipW * scale);
-        int h = (int)(dipH * scale);
-
-        var area = DisplayArea.GetFromWindowId(this.AppWindow.Id, DisplayAreaFallback.Nearest);
-        if (area is not null)
+    private void AddGlobalSlot(TextBlock combo, Button rebind, HotkeyBinding working, uint deg, string label)
+        // Btn0–3 are already wired to OnRebindClick in XAML; we locate the slot by sender.
+        => _slots.Add(new Slot
         {
-            w = Math.Min(w, (int)(area.WorkArea.Width  * 0.95));
-            h = Math.Min(h, (int)(area.WorkArea.Height * 0.95));
-            this.AppWindow.Resize(new SizeInt32(w, h));
-            int x = area.WorkArea.X + (area.WorkArea.Width  - w) / 2;
-            int y = area.WorkArea.Y + (area.WorkArea.Height - h) / 2;
-            this.AppWindow.Move(new PointInt32(x, y));
-        }
-        else
+            Working = working, Combo = combo, Rebind = rebind, Clear = null,
+            Label = label, Optional = false, DevicePath = null, Degrees = deg,
+        });
+
+    private void BuildPerMonitorSection()
+    {
+        List<MonitorInfo> monitors;
+        try { monitors = DisplayService.EnumerateMonitors(); }
+        catch { return; }
+
+        var badgeStyle = ((FrameworkElement)this.Content).Resources["ComboBadge"] as Style;
+        var textStyle  = ((FrameworkElement)this.Content).Resources["ComboText"]  as Style;
+
+        foreach (var mon in monitors)
         {
-            this.AppWindow.Resize(new SizeInt32(w, h));
+            var set = _store.GetMonitorHotkeys(mon.DevicePath);
+            var expander = new SettingsExpander { Header = mon.FriendlyName, IsExpanded = false };
+
+            AddMonitorRow(expander, mon, set.Rotate0.Clone(),   0,   badgeStyle, textStyle);
+            AddMonitorRow(expander, mon, set.Rotate90.Clone(),  90,  badgeStyle, textStyle);
+            AddMonitorRow(expander, mon, set.Rotate180.Clone(), 180, badgeStyle, textStyle);
+            AddMonitorRow(expander, mon, set.Rotate270.Clone(), 270, badgeStyle, textStyle);
+
+            PerMonitorPanel.Children.Add(expander);
         }
     }
 
-    private void LoadTitleBarIcon()
+    private void AddMonitorRow(SettingsExpander expander, MonitorInfo mon, HotkeyBinding working,
+                               uint deg, Style? badgeStyle, Style? textStyle)
     {
-        try
+        var combo = new TextBlock();
+        if (textStyle is not null) combo.Style = textStyle;
+
+        var badge = new Border { Child = combo };
+        if (badgeStyle is not null) badge.Style = badgeStyle;
+
+        var rebind = new Button { Content = "Rebind", MinWidth = 84 };
+        var clear  = new Button { Content = "Clear",  MinWidth = 64 };
+        rebind.Click += OnRebindClick;
+        clear.Click  += OnClearClick;
+
+        var panel = new StackPanel
         {
-            var asm = System.Reflection.Assembly.GetExecutingAssembly();
-            using var stream = asm.GetManifestResourceStream("app_icon.png");
-            if (stream is null) return;
+            Orientation = Orientation.Horizontal,
+            Spacing = 8,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        panel.Children.Add(badge);
+        panel.Children.Add(rebind);
+        panel.Children.Add(clear);
 
-            using var ms = new System.IO.MemoryStream();
-            stream.CopyTo(ms);
-            ms.Position = 0;
+        expander.Items.Add(new SettingsCard { Header = $"Rotate to {deg}°", Content = panel });
 
-            var bmp = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-            _ = bmp.SetSourceAsync(ms.AsRandomAccessStream());
-            TitleBarIcon.Source = bmp;
-        }
-        catch { /* icon is cosmetic */ }
+        _slots.Add(new Slot
+        {
+            Working = working, Combo = combo, Rebind = rebind, Clear = clear,
+            Label = $"{mon.FriendlyName} {deg}°", Optional = true,
+            DevicePath = mon.DevicePath, Degrees = deg,
+        });
     }
 
-    // ── Hotkey capture ────────────────────────────────────────────────────────
+    // ── Capture ────────────────────────────────────────────────────────────────
 
     private void OnRebindClick(object sender, RoutedEventArgs e)
     {
-        if (sender is not Button btn) return;
-        int row = int.Parse((string)btn.Tag);
+        var slot = _slots.FirstOrDefault(s => ReferenceEquals(s.Rebind, sender));
+        if (slot is null) return;
 
-        if (_capturingRow == row)
-            FinishCapture(accepted: false, binding: null);   // toggle off
-        else if (_capturingRow < 0)
-            StartCapture(row);
+        if (_capturing == slot)        EndCapture(null);   // toggle off
+        else if (_capturing is null)   StartCapture(slot);
     }
 
-    private void StartCapture(int row)
+    private void OnClearClick(object sender, RoutedEventArgs e)
     {
-        _capturingRow      = row;
-        _combos[row].Text  = "Press keys…  (Esc to cancel)";
-        _btns[row].Content = "Cancel";
-        ErrorBar.IsOpen    = false;
+        if (_capturing is not null) return;
+        var slot = _slots.FirstOrDefault(s => ReferenceEquals(s.Clear, sender));
+        if (slot is null) return;
 
-        for (int i = 0; i < 4; i++)
-            _btns[i].IsEnabled = (i == row);   // lock other rows while capturing
+        slot.Working = new HotkeyBinding();   // unset
+        ErrorBar.IsOpen = false;
+        RefreshSlots();
     }
 
-    private void FinishCapture(bool accepted, HotkeyBinding? binding)
+    private void StartCapture(Slot slot)
     {
-        int row = _capturingRow;
-        if (row < 0) return;
+        _capturing = slot;
+        ErrorBar.IsOpen = false;
 
-        if (accepted && binding is not null)
-            _bindings[row] = binding;
-
-        _capturingRow = -1;
-
-        for (int i = 0; i < 4; i++)
+        foreach (var s in _slots)
         {
-            _combos[i].Text    = _bindings[i].DisplayText;
-            _btns[i].Content   = "Rebind";
-            _btns[i].IsEnabled = true;
+            s.Rebind.IsEnabled = (s == slot);
+            if (s.Clear is not null) s.Clear.IsEnabled = false;
+        }
+        slot.Combo.Text     = "Press keys…  (Esc to cancel)";
+        slot.Rebind.Content = "Cancel";
+    }
+
+    private void EndCapture(HotkeyBinding? accepted)
+    {
+        if (_capturing is null) return;
+        if (accepted is not null) _capturing.Working = accepted;
+        _capturing = null;
+        RefreshSlots();
+    }
+
+    private void RefreshSlots()
+    {
+        foreach (var s in _slots)
+        {
+            s.Combo.Text       = s.Working.IsValid() ? s.Working.DisplayText : "Not set";
+            s.Rebind.Content   = "Rebind";
+            s.Rebind.IsEnabled = true;
+            if (s.Clear is not null) s.Clear.IsEnabled = true;
         }
     }
 
     private void OnKeyDown(object sender, KeyRoutedEventArgs e)
     {
-        if (_capturingRow < 0) return;
+        if (_capturing is null) return;
         e.Handled = true;
 
         var vk = e.Key;
         if (IsPureModifier(vk)) return;
-
-        if (vk == VirtualKey.Escape)
-        {
-            FinishCapture(accepted: false, binding: null);
-            return;
-        }
+        if (vk == VirtualKey.Escape) { EndCapture(null); return; }
 
         var mods = new List<string>();
         var modState = InputKeyboardSource.GetKeyStateForCurrentThread;
@@ -197,9 +222,9 @@ public sealed partial class SettingsWindow : Window
         if (mods.Count == 0) return;   // at least one modifier required
 
         var candidate = new HotkeyBinding { Mods = mods, Key = VkToKeyName(vk) };
-        if (!candidate.IsValid()) return;   // unknown key — wait for another
+        if (!candidate.IsValid()) return;
 
-        FinishCapture(accepted: true, binding: candidate);
+        EndCapture(candidate);
     }
 
     private static bool IsDown(Windows.UI.Core.CoreVirtualKeyStates state)
@@ -248,38 +273,55 @@ public sealed partial class SettingsWindow : Window
         _ => vk.ToString(),
     };
 
-    // ── Save / Cancel ─────────────────────────────────────────────────────────
+    // ── Save / Cancel ──────────────────────────────────────────────────────────
 
     private void OnSave(object sender, RoutedEventArgs e)
     {
-        for (int i = 0; i < 4; i++)
+        // Global hotkeys are mandatory → must be valid.
+        foreach (var s in _slots.Where(s => !s.Optional))
         {
-            if (!_bindings[i].IsValid())
+            if (!s.Working.IsValid())
             {
-                ShowError($"Hotkey for Rotate {ActionLabels[i]} (\"{_bindings[i].DisplayText}\") is invalid. " +
-                          "Each needs at least one modifier and a key.");
+                ShowError($"{s.Label} needs at least one modifier and a key.");
                 return;
             }
         }
 
-        for (int i = 0; i < 4; i++)
-        for (int j = i + 1; j < 4; j++)
+        // No duplicate combos across every SET binding (global + per-monitor).
+        var seen = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var s in _slots.Where(s => s.Working.IsValid()))
         {
-            if (_bindings[i].DisplayText == _bindings[j].DisplayText)
+            string key = s.Working.DisplayText;
+            if (seen.TryGetValue(key, out var other))
             {
-                ShowError($"\"{_bindings[i].DisplayText}\" is assigned to both Rotate {ActionLabels[i]} " +
-                          $"and Rotate {ActionLabels[j]}. Use a unique combo for each.");
+                ShowError($"\"{key}\" is assigned to both {other} and {s.Label}. Each combo must be unique.");
                 return;
             }
+            seen[key] = s.Label;
         }
 
+        // Persist the global set.
+        var g = _slots.Where(s => s.DevicePath is null).ToDictionary(s => s.Degrees, s => s.Working);
         _store.HotkeyBindings = new HotkeyBindings
         {
-            Rotate0   = _bindings[0].Clone(),
-            Rotate90  = _bindings[1].Clone(),
-            Rotate180 = _bindings[2].Clone(),
-            Rotate270 = _bindings[3].Clone(),
+            Rotate0   = g[0].Clone(),
+            Rotate90  = g[90].Clone(),
+            Rotate180 = g[180].Clone(),
+            Rotate270 = g[270].Clone(),
         };
+
+        // Persist each connected monitor's set (disconnected monitors are left untouched).
+        foreach (var grp in _slots.Where(s => s.DevicePath is not null).GroupBy(s => s.DevicePath!))
+        {
+            var byDeg = grp.ToDictionary(s => s.Degrees, s => s.Working);
+            _store.SetMonitorHotkeys(grp.Key, new HotkeyBindings
+            {
+                Rotate0   = Pick(byDeg, 0),
+                Rotate90  = Pick(byDeg, 90),
+                Rotate180 = Pick(byDeg, 180),
+                Rotate270 = Pick(byDeg, 270),
+            });
+        }
 
         _store.HotkeyTarget = TargetCombo.SelectedIndex switch
         {
@@ -287,24 +329,26 @@ public sealed partial class SettingsWindow : Window
             2 => "all",
             _ => "cursor",
         };
-
         _store.AutoReapply = AutoReapplyToggle.IsOn;
 
         try
         {
-            bool wantAutostart = AutostartToggle.IsOn;
-            Autostart.Apply(wantAutostart);
-            _store.Autostart = wantAutostart;
+            bool want = AutostartToggle.IsOn;
+            Autostart.Apply(want);
+            _store.Autostart = want;
         }
         catch (Exception ex)
         {
             ShowError($"Could not update the Start-with-Windows setting:\n{ex.Message}");
-            return;   // don't close — let the user retry or untoggle
+            return;
         }
 
         _reregisterHotkeys();
         this.Close();
     }
+
+    private static HotkeyBinding Pick(Dictionary<uint, HotkeyBinding> byDeg, uint deg)
+        => byDeg.TryGetValue(deg, out var b) ? b.Clone() : new HotkeyBinding();
 
     private void OnCancel(object sender, RoutedEventArgs e) => this.Close();
 
@@ -312,5 +356,60 @@ public sealed partial class SettingsWindow : Window
     {
         ErrorBar.Message = message;
         ErrorBar.IsOpen  = true;
+    }
+
+    // ── Window chrome helpers ───────────────────────────────────────────────────
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern uint GetDpiForWindow(IntPtr hwnd);
+
+    /// <summary>
+    /// Sizes the window from a DIP target scaled to the current DPI, clamps it to the
+    /// monitor work area (never off-screen on small/low-res displays), and centers it.
+    /// The ScrollViewer keeps content reachable if the clamp shrinks the window.
+    /// </summary>
+    private void SizeAndCenter()
+    {
+        const double dipW = 580, dipH = 720;
+
+        double scale = GetDpiForWindow(WinRT.Interop.WindowNative.GetWindowHandle(this)) / 96.0;
+        if (scale <= 0) scale = 1.0;
+
+        int w = (int)(dipW * scale);
+        int h = (int)(dipH * scale);
+
+        var area = DisplayArea.GetFromWindowId(this.AppWindow.Id, DisplayAreaFallback.Nearest);
+        if (area is not null)
+        {
+            w = Math.Min(w, (int)(area.WorkArea.Width  * 0.95));
+            h = Math.Min(h, (int)(area.WorkArea.Height * 0.95));
+            this.AppWindow.Resize(new SizeInt32(w, h));
+            int x = area.WorkArea.X + (area.WorkArea.Width  - w) / 2;
+            int y = area.WorkArea.Y + (area.WorkArea.Height - h) / 2;
+            this.AppWindow.Move(new PointInt32(x, y));
+        }
+        else
+        {
+            this.AppWindow.Resize(new SizeInt32(w, h));
+        }
+    }
+
+    private void LoadTitleBarIcon()
+    {
+        try
+        {
+            var asm = System.Reflection.Assembly.GetExecutingAssembly();
+            using var stream = asm.GetManifestResourceStream("app_icon.png");
+            if (stream is null) return;
+
+            using var ms = new System.IO.MemoryStream();
+            stream.CopyTo(ms);
+            ms.Position = 0;
+
+            var bmp = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+            _ = bmp.SetSourceAsync(ms.AsRandomAccessStream());
+            TitleBarIcon.Source = bmp;
+        }
+        catch { /* icon is cosmetic */ }
     }
 }

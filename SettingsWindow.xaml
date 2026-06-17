@@ -116,6 +116,16 @@
                     <ToggleSwitch x:Name="AutoReapplyToggle" MinWidth="0"/>
                 </controls:SettingsCard>
 
+                <!-- Per-monitor hotkeys (one expander per connected monitor, built in code-behind) -->
+                <TextBlock Text="Per-monitor hotkeys"
+                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                           Margin="2,18,0,0"/>
+                <TextBlock Text="Optional. Dedicated keys that rotate one specific monitor regardless of cursor position. Each combo must be unique."
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextWrapping="Wrap" Margin="2,0,0,6"/>
+                <StackPanel x:Name="PerMonitorPanel" Spacing="4"/>
+
             </StackPanel>
         </ScrollViewer>
 

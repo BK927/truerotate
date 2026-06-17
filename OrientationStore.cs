@@ -113,6 +113,15 @@ public sealed class HotkeyBindings
         Rotate180 = Rotate180.Clone(),
         Rotate270 = Rotate270.Clone(),
     };
+
+    /// <summary>All-unset bindings — used for optional per-monitor sets.</summary>
+    public static HotkeyBindings Empty() => new()
+    {
+        Rotate0   = new HotkeyBinding(),
+        Rotate90  = new HotkeyBinding(),
+        Rotate180 = new HotkeyBinding(),
+        Rotate270 = new HotkeyBinding(),
+    };
 }
 
 // ── JSON DTOs for hotkey bindings ─────────────────────────────────────────────
@@ -157,6 +166,7 @@ public sealed class OrientationStore
     private bool            _autostart    = false;
     private string          _hotkeyTarget = "cursor";
     private HotkeyBindings  _hotkeys      = new();
+    private readonly Dictionary<string, HotkeyBindings> _monitorHotkeys = new(StringComparer.OrdinalIgnoreCase);
 
     public OrientationStore()
     {
@@ -178,6 +188,7 @@ public sealed class OrientationStore
                     _autostart    = dto.Autostart;
                     _hotkeyTarget = dto.HotkeyTarget ?? "cursor";
                     _hotkeys      = FromDto(dto.Hotkeys);
+                    LoadMonitorHotkeys(dto.MonitorHotkeys);
                 }
             }
         }
@@ -214,6 +225,48 @@ public sealed class OrientationStore
         set { _hotkeys = value; Save(); }
     }
 
+    // ── Per-monitor hotkeys (optional; keyed by stable devicePath) ────────────
+
+    public IReadOnlyDictionary<string, HotkeyBindings> MonitorHotkeys => _monitorHotkeys;
+
+    public HotkeyBindings GetMonitorHotkeys(string devicePath)
+        => _monitorHotkeys.TryGetValue(devicePath, out var hk) ? hk.Clone() : HotkeyBindings.Empty();
+
+    /// <summary>Stores a monitor's per-monitor set (removes the entry if nothing is bound).</summary>
+    public void SetMonitorHotkeys(string devicePath, HotkeyBindings bindings)
+    {
+        if (string.IsNullOrEmpty(devicePath)) return;
+        bool anySet = bindings.Rotate0.IsValid()  || bindings.Rotate90.IsValid()
+                   || bindings.Rotate180.IsValid() || bindings.Rotate270.IsValid();
+        if (anySet) _monitorHotkeys[devicePath] = bindings.Clone();
+        else        _monitorHotkeys.Remove(devicePath);
+        Save();
+    }
+
+    private void LoadMonitorHotkeys(Dictionary<string, HotkeyBindingsDto>? dto)
+    {
+        _monitorHotkeys.Clear();
+        if (dto is null) return;
+        foreach (var kv in dto)
+        {
+            var d = kv.Value;
+            _monitorHotkeys[kv.Key] = new HotkeyBindings
+            {
+                Rotate0   = FromBindingDto(d?.Rotate0,   new HotkeyBinding()),
+                Rotate90  = FromBindingDto(d?.Rotate90,  new HotkeyBinding()),
+                Rotate180 = FromBindingDto(d?.Rotate180, new HotkeyBinding()),
+                Rotate270 = FromBindingDto(d?.Rotate270, new HotkeyBinding()),
+            };
+        }
+    }
+
+    private Dictionary<string, HotkeyBindingsDto> ToMonitorDto()
+    {
+        var result = new Dictionary<string, HotkeyBindingsDto>(StringComparer.OrdinalIgnoreCase);
+        foreach (var kv in _monitorHotkeys) result[kv.Key] = ToDto(kv.Value);
+        return result;
+    }
+
     // ── Monitor desired rotations ────────────────────────────────────────────
 
     public uint? GetDesired(string devicePath)
@@ -240,8 +293,9 @@ public sealed class OrientationStore
                 Monitors      = new Dictionary<string, uint>(_monitors),
                 AutoReapply   = _autoReapply,
                 Autostart     = _autostart,
-                HotkeyTarget  = _hotkeyTarget,
-                Hotkeys       = ToDto(_hotkeys),
+                HotkeyTarget   = _hotkeyTarget,
+                Hotkeys        = ToDto(_hotkeys),
+                MonitorHotkeys = ToMonitorDto(),
             }, JsonOpts);
             File.WriteAllText(ConfigPath, json);
         }
@@ -301,5 +355,8 @@ public sealed class OrientationStore
 
         [JsonPropertyName("hotkeys")]
         public HotkeyBindingsDto? Hotkeys { get; set; }
+
+        [JsonPropertyName("monitorHotkeys")]
+        public Dictionary<string, HotkeyBindingsDto>? MonitorHotkeys { get; set; }
     }
 }

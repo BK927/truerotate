@@ -24,6 +24,9 @@ internal sealed class TrayManager : IDisposable
     private readonly Action           _openSettings;
     private readonly Action           _exitApp;
 
+    // Runtime map of per-monitor hotkey ids → (monitor DevicePath, degrees).
+    private readonly Dictionary<int, (string devicePath, uint degrees)> _perMonitorHotkeys = new();
+
     public OrientationStore Store => _store;
 
     public TrayManager(
@@ -250,10 +253,37 @@ internal sealed class TrayManager : IDisposable
                 failed.Add(binding.DisplayText);
         }
 
+        // Per-monitor hotkeys: optional sets bound to a specific monitor by DevicePath.
+        _perMonitorHotkeys.Clear();
+        int nextId = PerMonitorIdBase;
+        foreach (var (devicePath, set) in _store.MonitorHotkeys)
+        {
+            foreach (var (binding, deg) in EnumerateSet(set))
+            {
+                uint vk = binding.ToVirtualKey();
+                if (vk == 0) continue;   // unset → not bound
+                int id = nextId++;
+                if (PInvoke.RegisterHotKey(_hotkeyWindow.HWND, id, binding.ToHotKeyModifiers(), vk))
+                    _perMonitorHotkeys[id] = (devicePath, deg);
+                else
+                    failed.Add(binding.DisplayText);
+            }
+        }
+
         if (failed.Count > 0)
             ShowBalloon(
                 "TrueRotate — hotkey conflict",
                 $"Could not register: {string.Join(", ", failed)}.\nAnother app may be using these keys.");
+    }
+
+    private const int PerMonitorIdBase = 100;
+
+    private static IEnumerable<(HotkeyBinding binding, uint degrees)> EnumerateSet(HotkeyBindings set)
+    {
+        yield return (set.Rotate0,   0);
+        yield return (set.Rotate90,  90);
+        yield return (set.Rotate180, 180);
+        yield return (set.Rotate270, 270);
     }
 
     public void UnregisterHotkeys()
@@ -262,6 +292,10 @@ internal sealed class TrayManager : IDisposable
         PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkRight);
         PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkDown);
         PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkLeft);
+
+        foreach (int id in _perMonitorHotkeys.Keys)
+            PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, id);
+        _perMonitorHotkeys.Clear();
     }
 
     public void ReregisterHotkeys()
@@ -272,6 +306,23 @@ internal sealed class TrayManager : IDisposable
 
     public void HandleHotkey(int id)
     {
+        // Per-monitor hotkey → rotate that specific monitor (by DevicePath), if connected.
+        if (_perMonitorHotkeys.TryGetValue(id, out var pm))
+        {
+            try
+            {
+                var target = DisplayService.EnumerateMonitors()
+                    .FirstOrDefault(m => string.Equals(m.DevicePath, pm.devicePath, StringComparison.OrdinalIgnoreCase));
+                if (target is not null) ApplyAndPersist(target, pm.degrees);
+                // monitor not currently connected → ignore
+            }
+            catch (Exception ex)
+            {
+                ShowBalloon("TrueRotate — hotkey rotation failed", ex.Message);
+            }
+            return;
+        }
+
         uint degrees = id switch
         {
             HkUp    => 0,
