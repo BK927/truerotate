@@ -1,13 +1,13 @@
 # TrueRotate
 
-[![Latest release](https://img.shields.io/github/v/release/BK927/true-rotate?include_prereleases&sort=semver)](https://github.com/BK927/true-rotate/releases/latest)
+[![Latest release](https://img.shields.io/github/v/release/BK927/true-rotate?include_prereleases&sort=semver)](https://github.com/BK927/true-rotate/releases)
 [![Downloads](https://img.shields.io/github/downloads/BK927/true-rotate/total)](https://github.com/BK927/true-rotate/releases)
 [![License: MIT](https://img.shields.io/github/license/BK927/true-rotate)](LICENSE)
 ![Platform: Windows 10/11](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D6)
 
 **A modern Windows display-rotation tray app that fixes the NVIDIA mouse-axis bug.**
 
-**[⬇ Download the latest release](https://github.com/BK927/true-rotate/releases/latest)** — a modern, open-source replacement for the old **iRotate**.
+**[⬇ Download the latest release](https://github.com/BK927/true-rotate/releases)** — a modern, open-source replacement for the old **iRotate**.
 
 TrueRotate lives in your system tray and rotates any monitor (0° / 90° / 180° / 270°) from a
 global hotkey or the tray menu. It's a modern replacement for the old *iRotate* utility, built
@@ -37,7 +37,7 @@ TrueRotate neutralizes this on every rotation. See [How the fix works](#how-the-
 
 Requirements: Windows 10/11. (Developed and verified on an NVIDIA GPU; works on any GPU.)
 
-**Easiest — prebuilt:** download the latest [release](https://github.com/BK927/true-rotate/releases/latest), extract the zip anywhere, and run `TrueRotate.exe`. No installer, no admin, no .NET runtime needed (self-contained).
+**Easiest — prebuilt:** download the latest [release](https://github.com/BK927/true-rotate/releases), extract the zip anywhere, and run `TrueRotate.exe`. No installer, no admin, no .NET runtime needed (self-contained).
 
 Or build from source — needs the [.NET 10 SDK](https://dotnet.microsoft.com/download):
 
