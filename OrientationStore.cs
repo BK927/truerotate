@@ -166,6 +166,7 @@ public sealed class OrientationStore
     private bool            _autostart    = false;
     private string          _hotkeyTarget = "cursor";
     private HotkeyBindings  _hotkeys      = new();
+    private HotkeyBinding   _cycleHotkey  = new();   // optional; cycles 0→90→180→270 on the target
     private readonly Dictionary<string, HotkeyBindings> _monitorHotkeys = new(StringComparer.OrdinalIgnoreCase);
 
     public OrientationStore()
@@ -188,6 +189,7 @@ public sealed class OrientationStore
                     _autostart    = dto.Autostart;
                     _hotkeyTarget = dto.HotkeyTarget ?? "cursor";
                     _hotkeys      = FromDto(dto.Hotkeys);
+                    _cycleHotkey  = FromBindingDto(dto.CycleHotkey, new HotkeyBinding());
                     LoadMonitorHotkeys(dto.MonitorHotkeys);
                 }
             }
@@ -223,6 +225,13 @@ public sealed class OrientationStore
     {
         get => _hotkeys;
         set { _hotkeys = value; Save(); }
+    }
+
+    /// <summary>Optional global hotkey that cycles the target monitor 0→90→180→270.</summary>
+    public HotkeyBinding CycleHotkey
+    {
+        get => _cycleHotkey;
+        set { _cycleHotkey = value; Save(); }
     }
 
     // ── Per-monitor hotkeys (optional; keyed by stable devicePath) ────────────
@@ -295,6 +304,7 @@ public sealed class OrientationStore
                 Autostart     = _autostart,
                 HotkeyTarget   = _hotkeyTarget,
                 Hotkeys        = ToDto(_hotkeys),
+                CycleHotkey    = ToBindingDto(_cycleHotkey),
                 MonitorHotkeys = ToMonitorDto(),
             }, JsonOpts);
             File.WriteAllText(ConfigPath, json);
@@ -355,6 +365,9 @@ public sealed class OrientationStore
 
         [JsonPropertyName("hotkeys")]
         public HotkeyBindingsDto? Hotkeys { get; set; }
+
+        [JsonPropertyName("cycleHotkey")]
+        public HotkeyBindingDto? CycleHotkey { get; set; }
 
         [JsonPropertyName("monitorHotkeys")]
         public Dictionary<string, HotkeyBindingsDto>? MonitorHotkeys { get; set; }

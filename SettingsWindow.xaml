@@ -92,6 +92,17 @@
                     </StackPanel>
                 </controls:SettingsCard>
 
+                <controls:SettingsCard x:Name="Card4" Header="Cycle"
+                                       Description="Rotate to the next orientation (0 → 90 → 180 → 270)">
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <Border Style="{StaticResource ComboBadge}">
+                            <TextBlock x:Name="Combo4" Style="{StaticResource ComboText}"/>
+                        </Border>
+                        <Button x:Name="Btn4" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
+                        <Button x:Name="ClearBtn4" Content="Clear" MinWidth="64" Click="OnClearClick"/>
+                    </StackPanel>
+                </controls:SettingsCard>
+
                 <InfoBar x:Name="ErrorBar" IsOpen="False" Severity="Error" IsClosable="True" Margin="0,6,0,0"/>
 
                 <!-- Behavior -->
@@ -135,10 +146,13 @@
                 BorderThickness="0,1,0,0"
                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                 Padding="20,14">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                <Button Content="Cancel" MinWidth="90" Click="OnCancel"/>
-                <Button Content="Save" MinWidth="90" Style="{StaticResource AccentButtonStyle}" Click="OnSave"/>
-            </StackPanel>
+            <Grid>
+                <Button Content="Restore defaults" HorizontalAlignment="Left" Click="OnRestoreDefaults"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                    <Button Content="Cancel" MinWidth="90" Click="OnCancel"/>
+                    <Button Content="Save" MinWidth="90" Style="{StaticResource AccentButtonStyle}" Click="OnSave"/>
+                </StackPanel>
+            </Grid>
         </Border>
 
     </Grid>

@@ -16,6 +16,7 @@ internal sealed class TrayManager : IDisposable
     private const int HkRight = 2;  // → 90°
     private const int HkDown  = 3;  // → 180°
     private const int HkLeft  = 4;  // → 270°
+    private const int HkCycle = 5;  // → next orientation (cycle 0→90→180→270)
 
     private readonly TrayIcon         _icon;
     private readonly System.Drawing.Icon? _iconImage;
@@ -253,6 +254,13 @@ internal sealed class TrayManager : IDisposable
                 failed.Add(binding.DisplayText);
         }
 
+        // Optional cycle hotkey.
+        var cycle = _store.CycleHotkey;
+        uint cycleVk = cycle.ToVirtualKey();
+        if (cycleVk != 0 &&
+            !PInvoke.RegisterHotKey(_hotkeyWindow.HWND, HkCycle, cycle.ToHotKeyModifiers(), cycleVk))
+            failed.Add(cycle.DisplayText);
+
         // Per-monitor hotkeys: optional sets bound to a specific monitor by DevicePath.
         _perMonitorHotkeys.Clear();
         int nextId = PerMonitorIdBase;
@@ -292,6 +300,7 @@ internal sealed class TrayManager : IDisposable
         PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkRight);
         PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkDown);
         PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkLeft);
+        PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, HkCycle);
 
         foreach (int id in _perMonitorHotkeys.Keys)
             PInvoke.UnregisterHotKey(_hotkeyWindow.HWND, id);
@@ -323,6 +332,7 @@ internal sealed class TrayManager : IDisposable
             return;
         }
 
+        bool isCycle = id == HkCycle;
         uint degrees = id switch
         {
             HkUp    => 0,
@@ -331,40 +341,48 @@ internal sealed class TrayManager : IDisposable
             HkLeft  => 270,
             _       => uint.MaxValue,
         };
-        if (degrees == uint.MaxValue) return;
+        if (!isCycle && degrees == uint.MaxValue) return;
 
         try
         {
             var monitors = DisplayService.EnumerateMonitors();
             if (monitors.Count == 0) return;
 
-            switch (_store.HotkeyTarget)
-            {
-                case "primary":
-                {
-                    var pt = new System.Drawing.Point(0, 0);
-                    var hMon = PInvoke.MonitorFromPoint(pt,
-                        Windows.Win32.Graphics.Gdi.MONITOR_FROM_FLAGS.MONITOR_DEFAULTTOPRIMARY);
-                    var target = FindMonitorByHandle(monitors, hMon) ?? monitors[0];
-                    ApplyAndPersist(target, degrees);
-                    break;
-                }
-                case "all":
-                    foreach (var mon in monitors)
-                        ApplyAndPersist(mon, degrees);
-                    break;
-                default: // "cursor"
-                    ApplyAndPersist(
-                        DisplayService.GetMonitorUnderCursor(monitors) ?? monitors[0],
-                        degrees);
-                    break;
-            }
+            foreach (var t in ResolveTargets(monitors))
+                ApplyAndPersist(t, isCycle ? NextRotation(t.Rotation) : degrees);
         }
         catch (Exception ex)
         {
             ShowBalloon("TrueRotate — hotkey rotation failed", ex.Message);
         }
     }
+
+    /// <summary>Monitors a global hotkey acts on, per the "Rotate target" setting.</summary>
+    private List<MonitorInfo> ResolveTargets(List<MonitorInfo> monitors)
+    {
+        switch (_store.HotkeyTarget)
+        {
+            case "primary":
+            {
+                var pt = new System.Drawing.Point(0, 0);
+                var hMon = PInvoke.MonitorFromPoint(pt,
+                    Windows.Win32.Graphics.Gdi.MONITOR_FROM_FLAGS.MONITOR_DEFAULTTOPRIMARY);
+                return [FindMonitorByHandle(monitors, hMon) ?? monitors[0]];
+            }
+            case "all":
+                return monitors;
+            default: // "cursor"
+                return [DisplayService.GetMonitorUnderCursor(monitors) ?? monitors[0]];
+        }
+    }
+
+    private static uint NextRotation(uint deg) => deg switch
+    {
+        0   => 90,
+        90  => 180,
+        180 => 270,
+        _   => 0,
+    };
 
     private static unsafe MonitorInfo? FindMonitorByHandle(
         List<MonitorInfo> monitors,

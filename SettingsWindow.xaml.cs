@@ -28,6 +28,7 @@ public sealed partial class SettingsWindow : Window
         public required bool          Optional;
         public string?                DevicePath; // null = global set
         public uint                   Degrees;
+        public bool                   IsCycle;    // the global cycle hotkey (not a fixed degree)
     }
 
     private readonly List<Slot> _slots = new();
@@ -80,6 +81,14 @@ public sealed partial class SettingsWindow : Window
         AddGlobalSlot(Combo1, Btn1, hk.Rotate90.Clone(),  90,  "Rotate 90°");
         AddGlobalSlot(Combo2, Btn2, hk.Rotate180.Clone(), 180, "Rotate 180°");
         AddGlobalSlot(Combo3, Btn3, hk.Rotate270.Clone(), 270, "Rotate 270°");
+
+        // Optional cycle hotkey (has a Clear button; may be unset).
+        _slots.Add(new Slot
+        {
+            Working = _store.CycleHotkey.Clone(),
+            Combo = Combo4, Rebind = Btn4, Clear = ClearBtn4,
+            Label = "Cycle", Optional = true, DevicePath = null, Degrees = 0, IsCycle = true,
+        });
     }
 
     private void AddGlobalSlot(TextBlock combo, Button rebind, HotkeyBinding working, uint deg, string label)
@@ -300,8 +309,8 @@ public sealed partial class SettingsWindow : Window
             seen[key] = s.Label;
         }
 
-        // Persist the global set.
-        var g = _slots.Where(s => s.DevicePath is null).ToDictionary(s => s.Degrees, s => s.Working);
+        // Persist the global set (fixed-degree slots only — exclude the cycle slot).
+        var g = _slots.Where(s => s.DevicePath is null && !s.IsCycle).ToDictionary(s => s.Degrees, s => s.Working);
         _store.HotkeyBindings = new HotkeyBindings
         {
             Rotate0   = g[0].Clone(),
@@ -309,6 +318,10 @@ public sealed partial class SettingsWindow : Window
             Rotate180 = g[180].Clone(),
             Rotate270 = g[270].Clone(),
         };
+
+        // Persist the optional cycle hotkey.
+        var cycleSlot = _slots.FirstOrDefault(s => s.IsCycle);
+        _store.CycleHotkey = cycleSlot is not null ? cycleSlot.Working.Clone() : new HotkeyBinding();
 
         // Persist each connected monitor's set (disconnected monitors are left untouched).
         foreach (var grp in _slots.Where(s => s.DevicePath is not null).GroupBy(s => s.DevicePath!))
@@ -351,6 +364,30 @@ public sealed partial class SettingsWindow : Window
         => byDeg.TryGetValue(deg, out var b) ? b.Clone() : new HotkeyBinding();
 
     private void OnCancel(object sender, RoutedEventArgs e) => this.Close();
+
+    private void OnRestoreDefaults(object sender, RoutedEventArgs e)
+    {
+        if (_capturing is not null) EndCapture(null);
+
+        var def = new HotkeyBindings();   // Ctrl+Alt+Shift + Up/Right/Down/Left
+        foreach (var s in _slots)
+        {
+            if (s.IsCycle)                 s.Working = new HotkeyBinding();   // cycle off
+            else if (s.DevicePath is null) s.Working = (s.Degrees switch      // global fixed-degree
+            {
+                0   => def.Rotate0,
+                90  => def.Rotate90,
+                180 => def.Rotate180,
+                _   => def.Rotate270,
+            }).Clone();
+            else                           s.Working = new HotkeyBinding();   // per-monitor cleared
+        }
+
+        TargetCombo.SelectedIndex = 0;    // cursor
+        AutoReapplyToggle.IsOn    = true;
+        ErrorBar.IsOpen           = false;
+        RefreshSlots();
+    }
 
     private void ShowError(string message)
     {

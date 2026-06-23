@@ -94,10 +94,37 @@ internal static class Program
             return;
         }
 
+        if (args[0] == "diag")
+        {
+            RunDiag();
+            return;
+        }
+
         Console.Error.WriteLine("Usage:");
         Console.Error.WriteLine("  TrueRotate list");
         Console.Error.WriteLine("  TrueRotate set <index> <0|90|180|270>");
         Console.Error.WriteLine("  TrueRotate test <index>");
+        Console.Error.WriteLine("  TrueRotate diag");
+    }
+
+    private static void RunDiag()
+    {
+        Console.WriteLine("TrueRotate — diagnostics");
+        Console.WriteLine($"OS:      {Environment.OSVersion.VersionString} ({(Environment.Is64BitOperatingSystem ? "x64" : "x86")})");
+        Console.WriteLine($"Runtime: .NET {Environment.Version}");
+        Console.WriteLine($"Exe:     {Environment.ProcessPath}");
+        string cfg = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TrueRotate", "config.json");
+        Console.WriteLine($"Config:  {cfg} ({(File.Exists(cfg) ? "present" : "missing")})");
+        Console.WriteLine();
+        ListMonitors();
+        if (File.Exists(cfg))
+        {
+            Console.WriteLine();
+            Console.WriteLine("--- config.json ---");
+            try { Console.WriteLine(File.ReadAllText(cfg)); }
+            catch (Exception ex) { Console.WriteLine($"(read failed: {ex.Message})"); }
+        }
     }
 
     private static void ListMonitors()
