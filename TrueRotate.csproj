@@ -52,6 +52,16 @@
     </EmbeddedResource>
   </ItemGroup>
 
-
+  <!-- TrueRotate uses no AI/ML or Widgets APIs, but WindowsAppSDK self-contained bundles
+       their runtime (~40 MB). Strip it from the publish output to shrink the download. -->
+  <Target Name="StripUnusedWinAppSdkRuntime" AfterTargets="Publish">
+    <ItemGroup>
+      <_TrStrip Include="$(PublishDir)onnxruntime*.dll" />
+      <_TrStrip Include="$(PublishDir)DirectML.dll" />
+      <_TrStrip Include="$(PublishDir)Microsoft.Windows.Widgets.dll" />
+    </ItemGroup>
+    <Delete Files="@(_TrStrip)" />
+    <Message Importance="high" Text="TrueRotate: stripped unused WinAppSDK AI/ML/Widgets runtime from the publish output." />
+  </Target>
 
 </Project>
