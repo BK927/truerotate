@@ -14,9 +14,11 @@
 
     <!-- WinUI 3 / Windows App SDK -->
     <UseWinUI>true</UseWinUI>
-    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsPackageType Condition="'$(TrPackaged)' == 'true'">MSIX</WindowsPackageType>
+    <WindowsPackageType Condition="'$(TrPackaged)' != 'true'">None</WindowsPackageType>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <EnableMsixTooling>true</EnableMsixTooling>
+    <Platforms>x64</Platforms>
 
     <!-- Dual-mode CLI entry point -->
     <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
@@ -50,6 +52,12 @@
     <EmbeddedResource Include="app_icon.png">
       <LogicalName>app_icon.png</LogicalName>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- MSIX packaging assets — only active when TrPackaged=true -->
+  <ItemGroup Condition="'$(TrPackaged)' == 'true'">
+    <AppxManifest Include="Package.appxmanifest"><SubType>Designer</SubType></AppxManifest>
+    <Content Include="Images\**"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
   </ItemGroup>
 
   <!-- TrueRotate uses no AI/ML or Widgets APIs, but WindowsAppSDK self-contained bundles

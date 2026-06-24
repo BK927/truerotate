@@ -1,18 +1,41 @@
 using Microsoft.Win32;
+using Windows.ApplicationModel;
 
 namespace TrueRotate;
 
 /// <summary>
-/// Manages the "start with Windows" registry entry under
-/// HKCU\Software\Microsoft\Windows\CurrentVersion\Run.
+/// Manages "start with Windows" for both packaged (MSIX StartupTask) and
+/// unpackaged (HKCU\...\Run) deployments.
 /// </summary>
 internal static class Autostart
 {
     private const string RunKey  = @"Software\Microsoft\Windows\CurrentVersion\Run";
     private const string AppName = "TrueRotate";
+    private const string StartupTaskId = "TrueRotateStartup";
+
+    // Detect once at class-init time; cached for the lifetime of the process.
+    private static readonly bool _isPackaged = DetectPackaged();
+
+    private static bool DetectPackaged()
+    {
+        try { _ = Package.Current.Id; return true; }
+        catch { return false; }
+    }
 
     public static bool IsEnabled()
     {
+        if (_isPackaged)
+        {
+            try
+            {
+                var task = Windows.ApplicationModel.StartupTask
+                    .GetAsync(StartupTaskId).AsTask().GetAwaiter().GetResult();
+                return task.State == Windows.ApplicationModel.StartupTaskState.Enabled
+                    || task.State == Windows.ApplicationModel.StartupTaskState.EnabledByPolicy;
+            }
+            catch { return false; }
+        }
+
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(RunKey, writable: false);
@@ -23,6 +46,19 @@ internal static class Autostart
 
     public static void Enable()
     {
+        if (_isPackaged)
+        {
+            try
+            {
+                var task = Windows.ApplicationModel.StartupTask
+                    .GetAsync(StartupTaskId).AsTask().GetAwaiter().GetResult();
+                // RequestEnableAsync may return Disabled if user blocked it via Task Manager — acceptable.
+                task.RequestEnableAsync().AsTask().GetAwaiter().GetResult();
+            }
+            catch { /* best-effort */ }
+            return;
+        }
+
         try
         {
             string exePath = Environment.ProcessPath
@@ -41,6 +77,18 @@ internal static class Autostart
 
     public static void Disable()
     {
+        if (_isPackaged)
+        {
+            try
+            {
+                var task = Windows.ApplicationModel.StartupTask
+                    .GetAsync(StartupTaskId).AsTask().GetAwaiter().GetResult();
+                task.Disable();
+            }
+            catch { /* best-effort */ }
+            return;
+        }
+
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(RunKey, writable: true);
