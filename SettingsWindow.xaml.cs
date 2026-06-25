@@ -53,7 +53,7 @@ public sealed partial class SettingsWindow : Window
         presenter.IsMaximizable = false;
         presenter.IsResizable   = true;
         this.AppWindow.SetPresenter(presenter);
-        this.AppWindow.Title = "TrueRotate Settings";
+        this.AppWindow.Title = L.Get("WindowTitle");
         SizeAndCenter();
 
         BuildGlobalSlots();
@@ -77,17 +77,17 @@ public sealed partial class SettingsWindow : Window
     private void BuildGlobalSlots()
     {
         var hk = _store.HotkeyBindings;
-        AddGlobalSlot(Combo0, Btn0, hk.Rotate0.Clone(),   0,   "Rotate 0°");
-        AddGlobalSlot(Combo1, Btn1, hk.Rotate90.Clone(),  90,  "Rotate 90°");
-        AddGlobalSlot(Combo2, Btn2, hk.Rotate180.Clone(), 180, "Rotate 180°");
-        AddGlobalSlot(Combo3, Btn3, hk.Rotate270.Clone(), 270, "Rotate 270°");
+        AddGlobalSlot(Combo0, Btn0, hk.Rotate0.Clone(),   0,   L.Get("SlotRotate0"));
+        AddGlobalSlot(Combo1, Btn1, hk.Rotate90.Clone(),  90,  L.Get("SlotRotate90"));
+        AddGlobalSlot(Combo2, Btn2, hk.Rotate180.Clone(), 180, L.Get("SlotRotate180"));
+        AddGlobalSlot(Combo3, Btn3, hk.Rotate270.Clone(), 270, L.Get("SlotRotate270"));
 
         // Optional cycle hotkey (has a Clear button; may be unset).
         _slots.Add(new Slot
         {
             Working = _store.CycleHotkey.Clone(),
             Combo = Combo4, Rebind = Btn4, Clear = ClearBtn4,
-            Label = "Cycle", Optional = true, DevicePath = null, Degrees = 0, IsCycle = true,
+            Label = L.Get("SlotCycle"), Optional = true, DevicePath = null, Degrees = 0, IsCycle = true,
         });
     }
 
@@ -131,8 +131,8 @@ public sealed partial class SettingsWindow : Window
         var badge = new Border { Child = combo };
         if (badgeStyle is not null) badge.Style = badgeStyle;
 
-        var rebind = new Button { Content = "Rebind", MinWidth = 84 };
-        var clear  = new Button { Content = "Clear",  MinWidth = 64 };
+        var rebind = new Button { Content = L.Get("BtnRebind"), MinWidth = 84 };
+        var clear  = new Button { Content = L.Get("BtnClear"),  MinWidth = 64 };
         rebind.Click += OnRebindClick;
         clear.Click  += OnClearClick;
 
@@ -146,7 +146,7 @@ public sealed partial class SettingsWindow : Window
         panel.Children.Add(rebind);
         panel.Children.Add(clear);
 
-        expander.Items.Add(new SettingsCard { Header = $"Rotate to {deg}°", Content = panel });
+        expander.Items.Add(new SettingsCard { Header = L.Fmt("PerMonRotateTo", deg), Content = panel });
 
         _slots.Add(new Slot
         {
@@ -188,8 +188,8 @@ public sealed partial class SettingsWindow : Window
             s.Rebind.IsEnabled = (s == slot);
             if (s.Clear is not null) s.Clear.IsEnabled = false;
         }
-        slot.Combo.Text     = "Press keys…  (Esc to cancel)";
-        slot.Rebind.Content = "Cancel";
+        slot.Combo.Text     = L.Get("CapturePrompt");
+        slot.Rebind.Content = L.Get("CaptureCancel");
     }
 
     private void EndCapture(HotkeyBinding? accepted)
@@ -204,8 +204,8 @@ public sealed partial class SettingsWindow : Window
     {
         foreach (var s in _slots)
         {
-            s.Combo.Text       = s.Working.IsValid() ? s.Working.DisplayText : "Not set";
-            s.Rebind.Content   = "Rebind";
+            s.Combo.Text       = s.Working.IsValid() ? s.Working.DisplayText : L.Get("NotSet");
+            s.Rebind.Content   = L.Get("BtnRebind");
             s.Rebind.IsEnabled = true;
             if (s.Clear is not null) s.Clear.IsEnabled = true;
         }
@@ -303,7 +303,7 @@ public sealed partial class SettingsWindow : Window
             string key = s.Working.DisplayText;
             if (seen.TryGetValue(key, out var other))
             {
-                ShowError($"\"{key}\" is assigned to both {other} and {s.Label}. Each combo must be unique.");
+                ShowError(L.Fmt("ErrDuplicateCombo", key, other, s.Label));
                 return;
             }
             seen[key] = s.Label;
@@ -352,7 +352,7 @@ public sealed partial class SettingsWindow : Window
         }
         catch (Exception ex)
         {
-            ShowError($"Could not update the Start-with-Windows setting:\n{ex.Message}");
+            ShowError(L.Fmt("ErrAutostart", ex.Message).Replace("\\n", "\n"));
             return;
         }
 

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="AppTitleText.Text" xml:space="preserve">
+    <value>TrueRotate 设置</value>
+  </data>
+
+  <data name="SecHotkeys.Text" xml:space="preserve">
+    <value>旋转快捷键</value>
+  </data>
+  <data name="SecHotkeysDesc.Text" xml:space="preserve">
+    <value>旋转目标显示器的全局快捷键。每个快捷键至少需要一个修饰键 (Ctrl / Alt / Shift)。</value>
+  </data>
+
+  <data name="Card0.Header" xml:space="preserve">
+    <value>旋转至 0°</value>
+  </data>
+  <data name="Card0.Description" xml:space="preserve">
+    <value>横向</value>
+  </data>
+  <data name="Card1.Header" xml:space="preserve">
+    <value>旋转至 90°</value>
+  </data>
+  <data name="Card1.Description" xml:space="preserve">
+    <value>纵向（顺时针）</value>
+  </data>
+  <data name="Card2.Header" xml:space="preserve">
+    <value>旋转至 180°</value>
+  </data>
+  <data name="Card2.Description" xml:space="preserve">
+    <value>横向（翻转）</value>
+  </data>
+  <data name="Card3.Header" xml:space="preserve">
+    <value>旋转至 270°</value>
+  </data>
+  <data name="Card3.Description" xml:space="preserve">
+    <value>纵向（逆时针）</value>
+  </data>
+  <data name="Card4.Header" xml:space="preserve">
+    <value>循环</value>
+  </data>
+  <data name="Card4.Description" xml:space="preserve">
+    <value>旋转至下一个方向 (0 → 90 → 180 → 270)</value>
+  </data>
+
+  <data name="Btn0.Content" xml:space="preserve">
+    <value>重新绑定</value>
+  </data>
+  <data name="Btn1.Content" xml:space="preserve">
+    <value>重新绑定</value>
+  </data>
+  <data name="Btn2.Content" xml:space="preserve">
+    <value>重新绑定</value>
+  </data>
+  <data name="Btn3.Content" xml:space="preserve">
+    <value>重新绑定</value>
+  </data>
+  <data name="Btn4.Content" xml:space="preserve">
+    <value>重新绑定</value>
+  </data>
+  <data name="ClearBtn4.Content" xml:space="preserve">
+    <value>清除</value>
+  </data>
+
+  <data name="SecBehavior.Text" xml:space="preserve">
+    <value>行为</value>
+  </data>
+  <data name="CardTarget.Header" xml:space="preserve">
+    <value>旋转目标</value>
+  </data>
+  <data name="CardTarget.Description" xml:space="preserve">
+    <value>快捷键作用的显示器</value>
+  </data>
+
+  <data name="TargetCursor.Content" xml:space="preserve">
+    <value>光标所在显示器</value>
+  </data>
+  <data name="TargetPrimary.Content" xml:space="preserve">
+    <value>主显示器</value>
+  </data>
+  <data name="TargetAll.Content" xml:space="preserve">
+    <value>所有显示器</value>
+  </data>
+
+  <data name="CardAutostart.Header" xml:space="preserve">
+    <value>随 Windows 启动</value>
+  </data>
+  <data name="CardAutostart.Description" xml:space="preserve">
+    <value>登录时自动启动 TrueRotate</value>
+  </data>
+
+  <data name="CardReapply.Header" xml:space="preserve">
+    <value>显示器变化时自动重新应用</value>
+  </data>
+  <data name="CardReapply.Description" xml:space="preserve">
+    <value>当其他应用（如 NVIDIA 应用）更改方向时，重新应用已保存的方向。若要允许其他工具旋转，请关闭此选项。</value>
+  </data>
+
+  <data name="SecPerMon.Text" xml:space="preserve">
+    <value>每台显示器快捷键</value>
+  </data>
+  <data name="SecPerMonDesc.Text" xml:space="preserve">
+    <value>可选。无论光标位置如何，专门旋转特定显示器的按键。每个组合必须唯一。</value>
+  </data>
+
+  <data name="BtnRestore.Content" xml:space="preserve">
+    <value>恢复默认值</value>
+  </data>
+  <data name="BtnCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="BtnSave.Content" xml:space="preserve">
+    <value>保存</value>
+  </data>
+
+  <data name="WindowTitle" xml:space="preserve">
+    <value>TrueRotate 设置</value>
+  </data>
+  <data name="SlotRotate0" xml:space="preserve">
+    <value>旋转 0°</value>
+  </data>
+  <data name="SlotRotate90" xml:space="preserve">
+    <value>旋转 90°</value>
+  </data>
+  <data name="SlotRotate180" xml:space="preserve">
+    <value>旋转 180°</value>
+  </data>
+  <data name="SlotRotate270" xml:space="preserve">
+    <value>旋转 270°</value>
+  </data>
+  <data name="SlotCycle" xml:space="preserve">
+    <value>循环</value>
+  </data>
+  <data name="BtnRebind" xml:space="preserve">
+    <value>重新绑定</value>
+  </data>
+  <data name="BtnClear" xml:space="preserve">
+    <value>清除</value>
+  </data>
+  <data name="CaptureCancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="CapturePrompt" xml:space="preserve">
+    <value>请按键…  (Esc 取消)</value>
+  </data>
+  <data name="NotSet" xml:space="preserve">
+    <value>未设置</value>
+  </data>
+  <data name="PerMonRotateTo" xml:space="preserve">
+    <value>旋转至 {0}°</value>
+  </data>
+  <data name="ErrDuplicateCombo" xml:space="preserve">
+    <value>"{0}" 已同时分配给 {1} 和 {2}。每个组合必须唯一。</value>
+  </data>
+  <data name="ErrAutostart" xml:space="preserve">
+    <value>无法更新"随 Windows 启动"设置:\n{0}</value>
+  </data>
+
+  <data name="MenuSettings" xml:space="preserve">
+    <value>设置…</value>
+  </data>
+  <data name="MenuExit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="MenuAutoReapply" xml:space="preserve">
+    <value>显示器变化时自动重新应用</value>
+  </data>
+  <data name="MenuError" xml:space="preserve">
+    <value>错误: {0}</value>
+  </data>
+  <data name="BalloonRotateFailedTitle" xml:space="preserve">
+    <value>TrueRotate — 旋转失败</value>
+  </data>
+  <data name="BalloonHotkeyConflictTitle" xml:space="preserve">
+    <value>TrueRotate — 快捷键冲突</value>
+  </data>
+  <data name="BalloonHotkeyConflictText" xml:space="preserve">
+    <value>无法注册: {0}.\n其他应用可能正在使用这些按键。</value>
+  </data>
+  <data name="BalloonHotkeyRotateFailedTitle" xml:space="preserve">
+    <value>TrueRotate — 快捷键旋转失败</value>
+  </data>
+
+  <data name="BalloonSettingsErrorTitle" xml:space="preserve">
+    <value>TrueRotate — 设置错误</value>
+  </data>
+
+  <data name="BalloonFightingTitle" xml:space="preserve">
+    <value>TrueRotate — 方向冲突</value>
+  </data>
+  <data name="BalloonFightingText" xml:space="preserve">
+    <value>无法保持方向 — 显示器持续复原。自动重新应用已暂停。请触发旋转或重启应用以重新启用。</value>
+  </data>
+  <data name="BalloonReapplyFailedTitle" xml:space="preserve">
+    <value>TrueRotate — 重新应用失败</value>
+  </data>
+
+</root>

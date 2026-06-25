@@ -59,7 +59,7 @@ public partial class App : Application
         catch (Exception ex)
         {
             _settingsWindow = null;
-            _tray?.ShowBalloon("TrueRotate — settings error", ex.Message);
+            _tray?.ShowBalloon(L.Get("BalloonSettingsErrorTitle"), ex.Message);
         }
     }
 

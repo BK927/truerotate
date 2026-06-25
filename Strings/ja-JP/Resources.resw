@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="AppTitleText.Text" xml:space="preserve">
+    <value>TrueRotate 設定</value>
+  </data>
+
+  <data name="SecHotkeys.Text" xml:space="preserve">
+    <value>回転ホットキー</value>
+  </data>
+  <data name="SecHotkeysDesc.Text" xml:space="preserve">
+    <value>対象モニターを回転させるグローバルショートカットです。各ショートカットには修飾キー (Ctrl / Alt / Shift) が 1 つ以上必要です。</value>
+  </data>
+
+  <data name="Card0.Header" xml:space="preserve">
+    <value>0° に回転</value>
+  </data>
+  <data name="Card0.Description" xml:space="preserve">
+    <value>横向き</value>
+  </data>
+  <data name="Card1.Header" xml:space="preserve">
+    <value>90° に回転</value>
+  </data>
+  <data name="Card1.Description" xml:space="preserve">
+    <value>縦向き (時計回り)</value>
+  </data>
+  <data name="Card2.Header" xml:space="preserve">
+    <value>180° に回転</value>
+  </data>
+  <data name="Card2.Description" xml:space="preserve">
+    <value>横向き (上下反転)</value>
+  </data>
+  <data name="Card3.Header" xml:space="preserve">
+    <value>270° に回転</value>
+  </data>
+  <data name="Card3.Description" xml:space="preserve">
+    <value>縦向き (反時計回り)</value>
+  </data>
+  <data name="Card4.Header" xml:space="preserve">
+    <value>サイクル</value>
+  </data>
+  <data name="Card4.Description" xml:space="preserve">
+    <value>次の向きに回転 (0 → 90 → 180 → 270)</value>
+  </data>
+
+  <data name="Btn0.Content" xml:space="preserve">
+    <value>再割り当て</value>
+  </data>
+  <data name="Btn1.Content" xml:space="preserve">
+    <value>再割り当て</value>
+  </data>
+  <data name="Btn2.Content" xml:space="preserve">
+    <value>再割り当て</value>
+  </data>
+  <data name="Btn3.Content" xml:space="preserve">
+    <value>再割り当て</value>
+  </data>
+  <data name="Btn4.Content" xml:space="preserve">
+    <value>再割り当て</value>
+  </data>
+  <data name="ClearBtn4.Content" xml:space="preserve">
+    <value>クリア</value>
+  </data>
+
+  <data name="SecBehavior.Text" xml:space="preserve">
+    <value>動作</value>
+  </data>
+  <data name="CardTarget.Header" xml:space="preserve">
+    <value>回転対象</value>
+  </data>
+  <data name="CardTarget.Description" xml:space="preserve">
+    <value>ホットキーが作用するモニター</value>
+  </data>
+
+  <data name="TargetCursor.Content" xml:space="preserve">
+    <value>カーソル下のモニター</value>
+  </data>
+  <data name="TargetPrimary.Content" xml:space="preserve">
+    <value>プライマリモニター</value>
+  </data>
+  <data name="TargetAll.Content" xml:space="preserve">
+    <value>すべてのモニター</value>
+  </data>
+
+  <data name="CardAutostart.Header" xml:space="preserve">
+    <value>Windows 起動時に開始</value>
+  </data>
+  <data name="CardAutostart.Description" xml:space="preserve">
+    <value>サインイン時に TrueRotate を自動的に起動します</value>
+  </data>
+
+  <data name="CardReapply.Header" xml:space="preserve">
+    <value>ディスプレイ変更時に自動再適用</value>
+  </data>
+  <data name="CardReapply.Description" xml:space="preserve">
+    <value>他のアプリ (NVIDIA アプリなど) が向きを変更した場合、保存した向きを再適用します。他のツールによる回転を許可するにはオフにしてください。</value>
+  </data>
+
+  <data name="SecPerMon.Text" xml:space="preserve">
+    <value>モニター別ホットキー</value>
+  </data>
+  <data name="SecPerMonDesc.Text" xml:space="preserve">
+    <value>省略可能。カーソル位置に関わらず特定のモニターを回転させる専用キーです。各組み合わせは一意である必要があります。</value>
+  </data>
+
+  <data name="BtnRestore.Content" xml:space="preserve">
+    <value>既定値に戻す</value>
+  </data>
+  <data name="BtnCancel.Content" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="BtnSave.Content" xml:space="preserve">
+    <value>保存</value>
+  </data>
+
+  <data name="WindowTitle" xml:space="preserve">
+    <value>TrueRotate 設定</value>
+  </data>
+  <data name="SlotRotate0" xml:space="preserve">
+    <value>0° 回転</value>
+  </data>
+  <data name="SlotRotate90" xml:space="preserve">
+    <value>90° 回転</value>
+  </data>
+  <data name="SlotRotate180" xml:space="preserve">
+    <value>180° 回転</value>
+  </data>
+  <data name="SlotRotate270" xml:space="preserve">
+    <value>270° 回転</value>
+  </data>
+  <data name="SlotCycle" xml:space="preserve">
+    <value>サイクル</value>
+  </data>
+  <data name="BtnRebind" xml:space="preserve">
+    <value>再割り当て</value>
+  </data>
+  <data name="BtnClear" xml:space="preserve">
+    <value>クリア</value>
+  </data>
+  <data name="CaptureCancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="CapturePrompt" xml:space="preserve">
+    <value>キーを押してください…  (Esc でキャンセル)</value>
+  </data>
+  <data name="NotSet" xml:space="preserve">
+    <value>未設定</value>
+  </data>
+  <data name="PerMonRotateTo" xml:space="preserve">
+    <value>{0}° に回転</value>
+  </data>
+  <data name="ErrDuplicateCombo" xml:space="preserve">
+    <value>"{0}" は {1} と {2} の両方に割り当てられています。各組み合わせは一意である必要があります。</value>
+  </data>
+  <data name="ErrAutostart" xml:space="preserve">
+    <value>Windows 起動時に開始の設定を更新できませんでした:\n{0}</value>
+  </data>
+
+  <data name="MenuSettings" xml:space="preserve">
+    <value>設定…</value>
+  </data>
+  <data name="MenuExit" xml:space="preserve">
+    <value>終了</value>
+  </data>
+  <data name="MenuAutoReapply" xml:space="preserve">
+    <value>ディスプレイ変更時に自動再適用</value>
+  </data>
+  <data name="MenuError" xml:space="preserve">
+    <value>エラー: {0}</value>
+  </data>
+  <data name="BalloonRotateFailedTitle" xml:space="preserve">
+    <value>TrueRotate — 回転に失敗しました</value>
+  </data>
+  <data name="BalloonHotkeyConflictTitle" xml:space="preserve">
+    <value>TrueRotate — ホットキーの競合</value>
+  </data>
+  <data name="BalloonHotkeyConflictText" xml:space="preserve">
+    <value>登録できませんでした: {0}.\n別のアプリがこのキーを使用している可能性があります。</value>
+  </data>
+  <data name="BalloonHotkeyRotateFailedTitle" xml:space="preserve">
+    <value>TrueRotate — ホットキー回転に失敗しました</value>
+  </data>
+
+  <data name="BalloonSettingsErrorTitle" xml:space="preserve">
+    <value>TrueRotate — 設定エラー</value>
+  </data>
+
+  <data name="BalloonFightingTitle" xml:space="preserve">
+    <value>TrueRotate — 向きの競合</value>
+  </data>
+  <data name="BalloonFightingText" xml:space="preserve">
+    <value>向きを保持できません — ディスプレイが繰り返しリセットされています。自動再適用が一時停止されました。回転を実行するかアプリを再起動して再有効化してください。</value>
+  </data>
+  <data name="BalloonReapplyFailedTitle" xml:space="preserve">
+    <value>TrueRotate — 再適用に失敗しました</value>
+  </data>
+
+</root>

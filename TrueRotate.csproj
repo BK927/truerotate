@@ -25,6 +25,9 @@
 
     <!-- App manifest (DPI awareness, UAC) -->
     <ApplicationManifest>app.manifest</ApplicationManifest>
+
+    <!-- Default language for resources.pri -->
+    <DefaultLanguage>en-US</DefaultLanguage>
   </PropertyGroup>
 
   <ItemGroup>

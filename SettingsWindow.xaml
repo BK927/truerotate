@@ -38,7 +38,7 @@
             </Grid.ColumnDefinitions>
             <Image Grid.Column="0" x:Name="TitleBarIcon"
                    Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center"/>
-            <TextBlock Grid.Column="1" Text="TrueRotate Settings"
+            <TextBlock x:Uid="AppTitleText" Grid.Column="1" Text="TrueRotate Settings"
                        Style="{StaticResource CaptionTextBlockStyle}"
                        VerticalAlignment="Center"/>
         </Grid>
@@ -48,90 +48,90 @@
             <StackPanel Spacing="4">
 
                 <!-- Hotkeys -->
-                <TextBlock Text="Rotation hotkeys"
+                <TextBlock x:Uid="SecHotkeys" Text="Rotation hotkeys"
                            Style="{StaticResource BodyStrongTextBlockStyle}"
                            Margin="2,8,0,0"/>
-                <TextBlock Text="Global shortcuts that rotate the target monitor. Each needs at least one modifier (Ctrl / Alt / Shift)."
+                <TextBlock x:Uid="SecHotkeysDesc" Text="Global shortcuts that rotate the target monitor. Each needs at least one modifier (Ctrl / Alt / Shift)."
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            TextWrapping="Wrap" Margin="2,0,0,6"/>
 
-                <controls:SettingsCard x:Name="Card0" Header="Rotate to 0°" Description="Landscape">
+                <controls:SettingsCard x:Uid="Card0" x:Name="Card0" Header="Rotate to 0°" Description="Landscape">
                     <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                         <Border Style="{StaticResource ComboBadge}">
                             <TextBlock x:Name="Combo0" Style="{StaticResource ComboText}"/>
                         </Border>
-                        <Button x:Name="Btn0" Tag="0" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
+                        <Button x:Uid="Btn0" x:Name="Btn0" Tag="0" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
                     </StackPanel>
                 </controls:SettingsCard>
 
-                <controls:SettingsCard x:Name="Card1" Header="Rotate to 90°" Description="Portrait (clockwise)">
+                <controls:SettingsCard x:Uid="Card1" x:Name="Card1" Header="Rotate to 90°" Description="Portrait (clockwise)">
                     <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                         <Border Style="{StaticResource ComboBadge}">
                             <TextBlock x:Name="Combo1" Style="{StaticResource ComboText}"/>
                         </Border>
-                        <Button x:Name="Btn1" Tag="1" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
+                        <Button x:Uid="Btn1" x:Name="Btn1" Tag="1" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
                     </StackPanel>
                 </controls:SettingsCard>
 
-                <controls:SettingsCard x:Name="Card2" Header="Rotate to 180°" Description="Landscape (flipped)">
+                <controls:SettingsCard x:Uid="Card2" x:Name="Card2" Header="Rotate to 180°" Description="Landscape (flipped)">
                     <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                         <Border Style="{StaticResource ComboBadge}">
                             <TextBlock x:Name="Combo2" Style="{StaticResource ComboText}"/>
                         </Border>
-                        <Button x:Name="Btn2" Tag="2" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
+                        <Button x:Uid="Btn2" x:Name="Btn2" Tag="2" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
                     </StackPanel>
                 </controls:SettingsCard>
 
-                <controls:SettingsCard x:Name="Card3" Header="Rotate to 270°" Description="Portrait (counter-clockwise)">
+                <controls:SettingsCard x:Uid="Card3" x:Name="Card3" Header="Rotate to 270°" Description="Portrait (counter-clockwise)">
                     <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                         <Border Style="{StaticResource ComboBadge}">
                             <TextBlock x:Name="Combo3" Style="{StaticResource ComboText}"/>
                         </Border>
-                        <Button x:Name="Btn3" Tag="3" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
+                        <Button x:Uid="Btn3" x:Name="Btn3" Tag="3" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
                     </StackPanel>
                 </controls:SettingsCard>
 
-                <controls:SettingsCard x:Name="Card4" Header="Cycle"
+                <controls:SettingsCard x:Uid="Card4" x:Name="Card4" Header="Cycle"
                                        Description="Rotate to the next orientation (0 → 90 → 180 → 270)">
                     <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                         <Border Style="{StaticResource ComboBadge}">
                             <TextBlock x:Name="Combo4" Style="{StaticResource ComboText}"/>
                         </Border>
-                        <Button x:Name="Btn4" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
-                        <Button x:Name="ClearBtn4" Content="Clear" MinWidth="64" Click="OnClearClick"/>
+                        <Button x:Uid="Btn4" x:Name="Btn4" Content="Rebind" MinWidth="84" Click="OnRebindClick"/>
+                        <Button x:Uid="ClearBtn4" x:Name="ClearBtn4" Content="Clear" MinWidth="64" Click="OnClearClick"/>
                     </StackPanel>
                 </controls:SettingsCard>
 
                 <InfoBar x:Name="ErrorBar" IsOpen="False" Severity="Error" IsClosable="True" Margin="0,6,0,0"/>
 
                 <!-- Behavior -->
-                <TextBlock Text="Behavior"
+                <TextBlock x:Uid="SecBehavior" Text="Behavior"
                            Style="{StaticResource BodyStrongTextBlockStyle}"
                            Margin="2,18,0,6"/>
 
-                <controls:SettingsCard Header="Rotate target" Description="Which monitor the hotkeys act on">
+                <controls:SettingsCard x:Uid="CardTarget" Header="Rotate target" Description="Which monitor the hotkeys act on">
                     <ComboBox x:Name="TargetCombo" MinWidth="170">
-                        <ComboBoxItem Content="Monitor under cursor"/>
-                        <ComboBoxItem Content="Primary monitor"/>
-                        <ComboBoxItem Content="All monitors"/>
+                        <ComboBoxItem x:Uid="TargetCursor" Content="Monitor under cursor"/>
+                        <ComboBoxItem x:Uid="TargetPrimary" Content="Primary monitor"/>
+                        <ComboBoxItem x:Uid="TargetAll" Content="All monitors"/>
                     </ComboBox>
                 </controls:SettingsCard>
 
-                <controls:SettingsCard Header="Start with Windows" Description="Launch TrueRotate automatically at sign-in">
+                <controls:SettingsCard x:Uid="CardAutostart" Header="Start with Windows" Description="Launch TrueRotate automatically at sign-in">
                     <ToggleSwitch x:Name="AutostartToggle" MinWidth="0"/>
                 </controls:SettingsCard>
 
-                <controls:SettingsCard Header="Auto-reapply on display change"
+                <controls:SettingsCard x:Uid="CardReapply" Header="Auto-reapply on display change"
                                        Description="Re-apply your saved orientation when something else (e.g. the NVIDIA app) changes it. Turn off to let other tools rotate.">
                     <ToggleSwitch x:Name="AutoReapplyToggle" MinWidth="0"/>
                 </controls:SettingsCard>
 
                 <!-- Per-monitor hotkeys (one expander per connected monitor, built in code-behind) -->
-                <TextBlock Text="Per-monitor hotkeys"
+                <TextBlock x:Uid="SecPerMon" Text="Per-monitor hotkeys"
                            Style="{StaticResource BodyStrongTextBlockStyle}"
                            Margin="2,18,0,0"/>
-                <TextBlock Text="Optional. Dedicated keys that rotate one specific monitor regardless of cursor position. Each combo must be unique."
+                <TextBlock x:Uid="SecPerMonDesc" Text="Optional. Dedicated keys that rotate one specific monitor regardless of cursor position. Each combo must be unique."
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            TextWrapping="Wrap" Margin="2,0,0,6"/>
@@ -147,10 +147,10 @@
                 BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                 Padding="20,14">
             <Grid>
-                <Button Content="Restore defaults" HorizontalAlignment="Left" Click="OnRestoreDefaults"/>
+                <Button x:Uid="BtnRestore" Content="Restore defaults" HorizontalAlignment="Left" Click="OnRestoreDefaults"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                    <Button Content="Cancel" MinWidth="90" Click="OnCancel"/>
-                    <Button Content="Save" MinWidth="90" Style="{StaticResource AccentButtonStyle}" Click="OnSave"/>
+                    <Button x:Uid="BtnCancel" Content="Cancel" MinWidth="90" Click="OnCancel"/>
+                    <Button x:Uid="BtnSave" Content="Save" MinWidth="90" Style="{StaticResource AccentButtonStyle}" Click="OnSave"/>
                 </StackPanel>
             </Grid>
         </Border>

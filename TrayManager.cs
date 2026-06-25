@@ -110,9 +110,9 @@ internal sealed class TrayManager : IDisposable
         }
         catch (Exception ex)
         {
-            AppendMenuItem(menu, 9999, $"Error: {ex.Message}", enabled: false);
+            AppendMenuItem(menu, 9999, L.Fmt("MenuError", ex.Message), enabled: false);
             AppendMenuSeparator(menu);
-            AppendMenuItem(menu, MenuId.Exit, "Exit");
+            AppendMenuItem(menu, MenuId.Exit, L.Get("MenuExit"));
             TrackAndDispatch(menu, subMenuHandles, monitors: null);
             return;
         }
@@ -133,11 +133,11 @@ internal sealed class TrayManager : IDisposable
         }
 
         AppendMenuSeparator(menu);
-        AppendMenuItem(menu, MenuId.Settings, "Settings…");
+        AppendMenuItem(menu, MenuId.Settings, L.Get("MenuSettings"));
         AppendMenuSeparator(menu);
-        AppendCheckMenuItem(menu, MenuId.AutoReapply, "Auto-reapply on display change", _store.AutoReapply);
+        AppendCheckMenuItem(menu, MenuId.AutoReapply, L.Get("MenuAutoReapply"), _store.AutoReapply);
         AppendMenuSeparator(menu);
-        AppendMenuItem(menu, MenuId.Exit, "Exit");
+        AppendMenuItem(menu, MenuId.Exit, L.Get("MenuExit"));
 
         int cmd = TrackAndDispatch(menu, subMenuHandles, monitors);
 
@@ -229,7 +229,7 @@ internal sealed class TrayManager : IDisposable
         }
         catch (Exception ex)
         {
-            ShowBalloon("TrueRotate — rotation failed", ex.Message);
+            ShowBalloon(L.Get("BalloonRotateFailedTitle"), ex.Message);
         }
     }
 
@@ -280,8 +280,8 @@ internal sealed class TrayManager : IDisposable
 
         if (failed.Count > 0)
             ShowBalloon(
-                "TrueRotate — hotkey conflict",
-                $"Could not register: {string.Join(", ", failed)}.\nAnother app may be using these keys.");
+                L.Get("BalloonHotkeyConflictTitle"),
+                L.Fmt("BalloonHotkeyConflictText", string.Join(", ", failed)).Replace("\\n", "\n"));
     }
 
     private const int PerMonitorIdBase = 100;
@@ -327,7 +327,7 @@ internal sealed class TrayManager : IDisposable
             }
             catch (Exception ex)
             {
-                ShowBalloon("TrueRotate — hotkey rotation failed", ex.Message);
+                ShowBalloon(L.Get("BalloonHotkeyRotateFailedTitle"), ex.Message);
             }
             return;
         }
@@ -353,7 +353,7 @@ internal sealed class TrayManager : IDisposable
         }
         catch (Exception ex)
         {
-            ShowBalloon("TrueRotate — hotkey rotation failed", ex.Message);
+            ShowBalloon(L.Get("BalloonHotkeyRotateFailedTitle"), ex.Message);
         }
     }
 

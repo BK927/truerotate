@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="AppTitleText.Text" xml:space="preserve">
+    <value>TrueRotate Einstellungen</value>
+  </data>
+
+  <data name="SecHotkeys.Text" xml:space="preserve">
+    <value>Rotations-Hotkeys</value>
+  </data>
+  <data name="SecHotkeysDesc.Text" xml:space="preserve">
+    <value>Globale Tastenkürzel zum Drehen des Zielmonitors. Jedes Kürzel benötigt mindestens eine Modifikatortaste (Ctrl / Alt / Shift).</value>
+  </data>
+
+  <data name="Card0.Header" xml:space="preserve">
+    <value>Auf 0° drehen</value>
+  </data>
+  <data name="Card0.Description" xml:space="preserve">
+    <value>Querformat</value>
+  </data>
+  <data name="Card1.Header" xml:space="preserve">
+    <value>Auf 90° drehen</value>
+  </data>
+  <data name="Card1.Description" xml:space="preserve">
+    <value>Hochformat (im Uhrzeigersinn)</value>
+  </data>
+  <data name="Card2.Header" xml:space="preserve">
+    <value>Auf 180° drehen</value>
+  </data>
+  <data name="Card2.Description" xml:space="preserve">
+    <value>Querformat (gespiegelt)</value>
+  </data>
+  <data name="Card3.Header" xml:space="preserve">
+    <value>Auf 270° drehen</value>
+  </data>
+  <data name="Card3.Description" xml:space="preserve">
+    <value>Hochformat (gegen den Uhrzeigersinn)</value>
+  </data>
+  <data name="Card4.Header" xml:space="preserve">
+    <value>Durchlauf</value>
+  </data>
+  <data name="Card4.Description" xml:space="preserve">
+    <value>Zur nächsten Ausrichtung drehen (0 → 90 → 180 → 270)</value>
+  </data>
+
+  <data name="Btn0.Content" xml:space="preserve">
+    <value>Neu belegen</value>
+  </data>
+  <data name="Btn1.Content" xml:space="preserve">
+    <value>Neu belegen</value>
+  </data>
+  <data name="Btn2.Content" xml:space="preserve">
+    <value>Neu belegen</value>
+  </data>
+  <data name="Btn3.Content" xml:space="preserve">
+    <value>Neu belegen</value>
+  </data>
+  <data name="Btn4.Content" xml:space="preserve">
+    <value>Neu belegen</value>
+  </data>
+  <data name="ClearBtn4.Content" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+
+  <data name="SecBehavior.Text" xml:space="preserve">
+    <value>Verhalten</value>
+  </data>
+  <data name="CardTarget.Header" xml:space="preserve">
+    <value>Rotationsziel</value>
+  </data>
+  <data name="CardTarget.Description" xml:space="preserve">
+    <value>Monitor, auf den die Hotkeys wirken</value>
+  </data>
+
+  <data name="TargetCursor.Content" xml:space="preserve">
+    <value>Monitor unter dem Cursor</value>
+  </data>
+  <data name="TargetPrimary.Content" xml:space="preserve">
+    <value>Primärer Monitor</value>
+  </data>
+  <data name="TargetAll.Content" xml:space="preserve">
+    <value>Alle Monitore</value>
+  </data>
+
+  <data name="CardAutostart.Header" xml:space="preserve">
+    <value>Mit Windows starten</value>
+  </data>
+  <data name="CardAutostart.Description" xml:space="preserve">
+    <value>TrueRotate automatisch beim Anmelden starten</value>
+  </data>
+
+  <data name="CardReapply.Header" xml:space="preserve">
+    <value>Bei Anzeigeänderung automatisch erneut anwenden</value>
+  </data>
+  <data name="CardReapply.Description" xml:space="preserve">
+    <value>Gespeicherte Ausrichtung wiederherstellen, wenn eine andere App (z. B. die NVIDIA-App) sie ändert. Deaktivieren, um anderen Tools das Drehen zu erlauben.</value>
+  </data>
+
+  <data name="SecPerMon.Text" xml:space="preserve">
+    <value>Monitorspezifische Hotkeys</value>
+  </data>
+  <data name="SecPerMonDesc.Text" xml:space="preserve">
+    <value>Optional. Dedizierte Tasten zum Drehen eines bestimmten Monitors unabhängig von der Cursorposition. Jede Kombination muss eindeutig sein.</value>
+  </data>
+
+  <data name="BtnRestore.Content" xml:space="preserve">
+    <value>Standardwerte wiederherstellen</value>
+  </data>
+  <data name="BtnCancel.Content" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="BtnSave.Content" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+
+  <data name="WindowTitle" xml:space="preserve">
+    <value>TrueRotate Einstellungen</value>
+  </data>
+  <data name="SlotRotate0" xml:space="preserve">
+    <value>0° drehen</value>
+  </data>
+  <data name="SlotRotate90" xml:space="preserve">
+    <value>90° drehen</value>
+  </data>
+  <data name="SlotRotate180" xml:space="preserve">
+    <value>180° drehen</value>
+  </data>
+  <data name="SlotRotate270" xml:space="preserve">
+    <value>270° drehen</value>
+  </data>
+  <data name="SlotCycle" xml:space="preserve">
+    <value>Durchlauf</value>
+  </data>
+  <data name="BtnRebind" xml:space="preserve">
+    <value>Neu belegen</value>
+  </data>
+  <data name="BtnClear" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="CaptureCancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="CapturePrompt" xml:space="preserve">
+    <value>Tasten drücken…  (Esc zum Abbrechen)</value>
+  </data>
+  <data name="NotSet" xml:space="preserve">
+    <value>Nicht belegt</value>
+  </data>
+  <data name="PerMonRotateTo" xml:space="preserve">
+    <value>Auf {0}° drehen</value>
+  </data>
+  <data name="ErrDuplicateCombo" xml:space="preserve">
+    <value>„{0}" ist sowohl {1} als auch {2} zugewiesen. Jede Kombination muss eindeutig sein.</value>
+  </data>
+  <data name="ErrAutostart" xml:space="preserve">
+    <value>Die Autostart-Einstellung konnte nicht aktualisiert werden:\n{0}</value>
+  </data>
+
+  <data name="MenuSettings" xml:space="preserve">
+    <value>Einstellungen…</value>
+  </data>
+  <data name="MenuExit" xml:space="preserve">
+    <value>Beenden</value>
+  </data>
+  <data name="MenuAutoReapply" xml:space="preserve">
+    <value>Bei Anzeigeänderung automatisch erneut anwenden</value>
+  </data>
+  <data name="MenuError" xml:space="preserve">
+    <value>Fehler: {0}</value>
+  </data>
+  <data name="BalloonRotateFailedTitle" xml:space="preserve">
+    <value>TrueRotate — Rotation fehlgeschlagen</value>
+  </data>
+  <data name="BalloonHotkeyConflictTitle" xml:space="preserve">
+    <value>TrueRotate — Hotkey-Konflikt</value>
+  </data>
+  <data name="BalloonHotkeyConflictText" xml:space="preserve">
+    <value>Konnte nicht registriert werden: {0}.\nEine andere App verwendet möglicherweise diese Tasten.</value>
+  </data>
+  <data name="BalloonHotkeyRotateFailedTitle" xml:space="preserve">
+    <value>TrueRotate — Hotkey-Rotation fehlgeschlagen</value>
+  </data>
+
+  <data name="BalloonSettingsErrorTitle" xml:space="preserve">
+    <value>TrueRotate — Einstellungsfehler</value>
+  </data>
+
+  <data name="BalloonFightingTitle" xml:space="preserve">
+    <value>TrueRotate — Ausrichtungskonflikt</value>
+  </data>
+  <data name="BalloonFightingText" xml:space="preserve">
+    <value>Ausrichtung konnte nicht gehalten werden — der Monitor setzt sich immer wieder zurück. Automatische Wiederherstellung ist pausiert. Rotation auslösen oder App neu starten, um sie wieder zu aktivieren.</value>
+  </data>
+  <data name="BalloonReapplyFailedTitle" xml:space="preserve">
+    <value>TrueRotate — Erneutes Anwenden fehlgeschlagen</value>
+  </data>
+
+</root>

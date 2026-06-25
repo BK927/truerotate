@@ -92,9 +92,8 @@ internal sealed class ReapplyController : IDisposable
             {
                 _thrashPaused = true;
                 _showWarning(
-                    "TrueRotate — orientation fighting",
-                    "Couldn't hold orientation — the display keeps reverting. " +
-                    "Auto-reapply is paused. Trigger a rotation or restart the app to re-enable.");
+                    L.Get("BalloonFightingTitle"),
+                    L.Get("BalloonFightingText"));
                 return;
             }
 
@@ -104,7 +103,7 @@ internal sealed class ReapplyController : IDisposable
             }
             catch (Exception ex)
             {
-                _showWarning("TrueRotate — reapply failed", ex.Message);
+                _showWarning(L.Get("BalloonReapplyFailedTitle"), ex.Message);
             }
         }
 
