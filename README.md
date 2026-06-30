@@ -10,7 +10,7 @@
 **[⬇ Download the latest release](https://github.com/BK927/true-rotate/releases)** — a modern, open-source replacement for the old **iRotate**.
 
 <p align="center">
-  <img src="docs/screenshot-settings.png" width="440"
+  <img src="screenshot.png" width="440"
        alt="TrueRotate settings — rotation hotkeys, rotate target, and per-monitor hotkeys (Fluent / WinUI 3)">
 </p>
 
