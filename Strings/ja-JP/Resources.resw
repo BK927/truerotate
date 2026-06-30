@@ -74,6 +74,25 @@
     <value>クリア</value>
   </data>
 
+  <data name="SecGeneral.Text" xml:space="preserve">
+    <value>一般</value>
+  </data>
+  <data name="CardLanguage.Header" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="CardLanguage.Description" xml:space="preserve">
+    <value>すぐに適用されます</value>
+  </data>
+  <data name="LangSystemDefault" xml:space="preserve">
+    <value>システム既定</value>
+  </data>
+  <data name="ToggleOn" xml:space="preserve">
+    <value>オン</value>
+  </data>
+  <data name="ToggleOff" xml:space="preserve">
+    <value>オフ</value>
+  </data>
+
   <data name="SecBehavior.Text" xml:space="preserve">
     <value>動作</value>
   </data>

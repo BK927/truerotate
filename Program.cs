@@ -140,4 +140,5 @@ internal static class Program
             Console.WriteLine($"{m.Index,-4} {m.FriendlyName,-32} {m.Rotation,3}°  {m.GdiDeviceName,-12}  {path}");
         }
     }
+
 }

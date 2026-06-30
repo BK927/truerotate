@@ -74,6 +74,25 @@
     <value>Löschen</value>
   </data>
 
+  <data name="SecGeneral.Text" xml:space="preserve">
+    <value>Allgemein</value>
+  </data>
+  <data name="CardLanguage.Header" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
+  <data name="CardLanguage.Description" xml:space="preserve">
+    <value>Wird sofort übernommen</value>
+  </data>
+  <data name="LangSystemDefault" xml:space="preserve">
+    <value>Systemstandard</value>
+  </data>
+  <data name="ToggleOn" xml:space="preserve">
+    <value>Ein</value>
+  </data>
+  <data name="ToggleOff" xml:space="preserve">
+    <value>Aus</value>
+  </data>
+
   <data name="SecBehavior.Text" xml:space="preserve">
     <value>Verhalten</value>
   </data>

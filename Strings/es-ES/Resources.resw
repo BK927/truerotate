@@ -74,6 +74,25 @@
     <value>Borrar</value>
   </data>
 
+  <data name="SecGeneral.Text" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="CardLanguage.Header" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="CardLanguage.Description" xml:space="preserve">
+    <value>Se aplica inmediatamente</value>
+  </data>
+  <data name="LangSystemDefault" xml:space="preserve">
+    <value>Predeterminado del sistema</value>
+  </data>
+  <data name="ToggleOn" xml:space="preserve">
+    <value>Activado</value>
+  </data>
+  <data name="ToggleOff" xml:space="preserve">
+    <value>Desactivado</value>
+  </data>
+
   <data name="SecBehavior.Text" xml:space="preserve">
     <value>Comportamiento</value>
   </data>

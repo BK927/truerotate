@@ -165,6 +165,7 @@ public sealed class OrientationStore
     private bool            _autoReapply  = true;
     private bool            _autostart    = false;
     private string          _hotkeyTarget = "cursor";
+    private string          _language     = "";      // "" / "system" = follow OS; BCP-47 tag otherwise
     private HotkeyBindings  _hotkeys      = new();
     private HotkeyBinding   _cycleHotkey  = new();   // optional; cycles 0→90→180→270 on the target
     private readonly Dictionary<string, HotkeyBindings> _monitorHotkeys = new(StringComparer.OrdinalIgnoreCase);
@@ -188,6 +189,7 @@ public sealed class OrientationStore
                     // New fields — default if missing (backward-compat)
                     _autostart    = dto.Autostart;
                     _hotkeyTarget = dto.HotkeyTarget ?? "cursor";
+                    _language     = dto.Language ?? "";
                     _hotkeys      = FromDto(dto.Hotkeys);
                     _cycleHotkey  = FromBindingDto(dto.CycleHotkey, new HotkeyBinding());
                     LoadMonitorHotkeys(dto.MonitorHotkeys);
@@ -212,6 +214,13 @@ public sealed class OrientationStore
     {
         get => _autostart;
         set { if (_autostart == value) return; _autostart = value; Save(); }
+    }
+
+    /// <summary>BCP-47 language tag override, or "" / "system" to follow OS.</summary>
+    public string Language
+    {
+        get => _language;
+        set { if (_language == value) return; _language = value; Save(); }
     }
 
     /// <summary>"cursor" | "primary" | "all"</summary>
@@ -303,6 +312,7 @@ public sealed class OrientationStore
                 AutoReapply   = _autoReapply,
                 Autostart     = _autostart,
                 HotkeyTarget   = _hotkeyTarget,
+                Language       = string.IsNullOrEmpty(_language) || _language == "system" ? null : _language,
                 Hotkeys        = ToDto(_hotkeys),
                 CycleHotkey    = ToBindingDto(_cycleHotkey),
                 MonitorHotkeys = ToMonitorDto(),
@@ -362,6 +372,9 @@ public sealed class OrientationStore
 
         [JsonPropertyName("hotkeyTarget")]
         public string? HotkeyTarget { get; set; }
+
+        [JsonPropertyName("language")]
+        public string? Language { get; set; }
 
         [JsonPropertyName("hotkeys")]
         public HotkeyBindingsDto? Hotkeys { get; set; }

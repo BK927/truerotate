@@ -74,6 +74,25 @@
     <value>清除</value>
   </data>
 
+  <data name="SecGeneral.Text" xml:space="preserve">
+    <value>常规</value>
+  </data>
+  <data name="CardLanguage.Header" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="CardLanguage.Description" xml:space="preserve">
+    <value>立即应用</value>
+  </data>
+  <data name="LangSystemDefault" xml:space="preserve">
+    <value>系统默认</value>
+  </data>
+  <data name="ToggleOn" xml:space="preserve">
+    <value>开</value>
+  </data>
+  <data name="ToggleOff" xml:space="preserve">
+    <value>关</value>
+  </data>
+
   <data name="SecBehavior.Text" xml:space="preserve">
     <value>行为</value>
   </data>

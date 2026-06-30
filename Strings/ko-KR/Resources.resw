@@ -74,6 +74,25 @@
     <value>지우기</value>
   </data>
 
+  <data name="SecGeneral.Text" xml:space="preserve">
+    <value>일반</value>
+  </data>
+  <data name="CardLanguage.Header" xml:space="preserve">
+    <value>언어</value>
+  </data>
+  <data name="CardLanguage.Description" xml:space="preserve">
+    <value>즉시 적용됩니다</value>
+  </data>
+  <data name="LangSystemDefault" xml:space="preserve">
+    <value>시스템 기본값</value>
+  </data>
+  <data name="ToggleOn" xml:space="preserve">
+    <value>켜짐</value>
+  </data>
+  <data name="ToggleOff" xml:space="preserve">
+    <value>꺼짐</value>
+  </data>
+
   <data name="SecBehavior.Text" xml:space="preserve">
     <value>동작</value>
   </data>

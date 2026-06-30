@@ -37,6 +37,9 @@ public sealed partial class SettingsWindow : Window
     private readonly OrientationStore _store;
     private readonly Action           _reregisterHotkeys;
 
+    // Per-monitor cards tracked for re-localization on language switch.
+    private readonly List<(SettingsCard Card, uint Degrees)> _perMonCards = new();
+
     public SettingsWindow(OrientationStore store, Action reregisterHotkeys)
     {
         _store             = store;
@@ -58,6 +61,7 @@ public sealed partial class SettingsWindow : Window
 
         BuildGlobalSlots();
         BuildPerMonitorSection();
+        BuildLanguageCombo();
 
         TargetCombo.SelectedIndex = store.HotkeyTarget switch
         {
@@ -69,7 +73,94 @@ public sealed partial class SettingsWindow : Window
         AutoReapplyToggle.IsOn = store.AutoReapply;
 
         RefreshSlots();
+        LocalizeUi();
+
+        // Wire SelectionChanged AFTER initial index is set so the initial assignment
+        // does not fire the handler.
+        LanguageCombo.SelectionChanged += OnLanguageComboChanged;
+
         this.Content.KeyDown += OnKeyDown;
+    }
+
+    // ── Localization ───────────────────────────────────────────────────────────
+
+    private void LocalizeUi()
+    {
+        this.AppWindow.Title = L.Get("WindowTitle");
+
+        // Title bar
+        AppTitleText.Text = L.Get("AppTitleText.Text");
+
+        // Section labels
+        SecHotkeys.Text    = L.Get("SecHotkeys.Text");
+        SecHotkeysDesc.Text = L.Get("SecHotkeysDesc.Text");
+        SecGeneral.Text    = L.Get("SecGeneral.Text");
+        SecBehavior.Text   = L.Get("SecBehavior.Text");
+        SecPerMon.Text     = L.Get("SecPerMon.Text");
+        SecPerMonDesc.Text = L.Get("SecPerMonDesc.Text");
+
+        // SettingsCards — global hotkey cards
+        Card0.Header      = L.Get("Card0.Header");
+        Card0.Description = L.Get("Card0.Description");
+        Card1.Header      = L.Get("Card1.Header");
+        Card1.Description = L.Get("Card1.Description");
+        Card2.Header      = L.Get("Card2.Header");
+        Card2.Description = L.Get("Card2.Description");
+        Card3.Header      = L.Get("Card3.Header");
+        Card3.Description = L.Get("Card3.Description");
+        Card4.Header      = L.Get("Card4.Header");
+        Card4.Description = L.Get("Card4.Description");
+
+        // SettingsCards — General / Behavior
+        CardLanguage.Header      = L.Get("CardLanguage.Header");
+        CardLanguage.Description = L.Get("CardLanguage.Description");
+        CardTarget.Header        = L.Get("CardTarget.Header");
+        CardTarget.Description   = L.Get("CardTarget.Description");
+        CardAutostart.Header     = L.Get("CardAutostart.Header");
+        CardAutostart.Description = L.Get("CardAutostart.Description");
+        CardReapply.Header       = L.Get("CardReapply.Header");
+        CardReapply.Description  = L.Get("CardReapply.Description");
+
+        // Buttons — global slots (Btn0–3 get their content from RefreshSlots; Btn4/ClearBtn4 too)
+        // Explicit set here ensures initial load is localized before RefreshSlots overwrites:
+        Btn0.Content     = L.Get("Btn0.Content");
+        Btn1.Content     = L.Get("Btn1.Content");
+        Btn2.Content     = L.Get("Btn2.Content");
+        Btn3.Content     = L.Get("Btn3.Content");
+        Btn4.Content     = L.Get("Btn4.Content");
+        ClearBtn4.Content = L.Get("ClearBtn4.Content");
+
+        // Action bar buttons
+        BtnRestore.Content = L.Get("BtnRestore.Content");
+        BtnCancel.Content  = L.Get("BtnCancel.Content");
+        BtnSave.Content    = L.Get("BtnSave.Content");
+
+        // ComboBox items — target
+        TargetCursor.Content  = L.Get("TargetCursor.Content");
+        TargetPrimary.Content = L.Get("TargetPrimary.Content");
+        TargetAll.Content     = L.Get("TargetAll.Content");
+
+        // ToggleSwitch On/Off labels (WinUI default follows OS display language independently)
+        AutostartToggle.OnContent    = L.Get("ToggleOn");
+        AutostartToggle.OffContent   = L.Get("ToggleOff");
+        AutoReapplyToggle.OnContent  = L.Get("ToggleOn");
+        AutoReapplyToggle.OffContent = L.Get("ToggleOff");
+
+        // Language combo — re-localize the system-default item (index 0)
+        if (LanguageCombo.Items.Count > 0 && LanguageCombo.Items[0] is ComboBoxItem sysItem)
+            sysItem.Content = L.Get("LangSystemDefault");
+
+        // Per-monitor cards
+        foreach (var (card, deg) in _perMonCards)
+            card.Header = L.Fmt("PerMonRotateTo", deg);
+    }
+
+    private void OnLanguageComboChanged(object sender, SelectionChangedEventArgs e)
+    {
+        string tag = LanguageCombo.SelectedItem is ComboBoxItem item && item.Tag is string t ? t : "";
+        L.SetLanguage(tag);
+        LocalizeUi();
+        RefreshSlots();
     }
 
     // ── Slot construction ──────────────────────────────────────────────────────
@@ -146,7 +237,9 @@ public sealed partial class SettingsWindow : Window
         panel.Children.Add(rebind);
         panel.Children.Add(clear);
 
-        expander.Items.Add(new SettingsCard { Header = L.Fmt("PerMonRotateTo", deg), Content = panel });
+        var card = new SettingsCard { Header = L.Fmt("PerMonRotateTo", deg), Content = panel };
+        expander.Items.Add(card);
+        _perMonCards.Add((card, deg));
 
         _slots.Add(new Slot
         {
@@ -154,6 +247,37 @@ public sealed partial class SettingsWindow : Window
             Label = $"{mon.FriendlyName} {deg}°", Optional = true,
             DevicePath = mon.DevicePath, Degrees = deg,
         });
+    }
+
+    // ── Language ComboBox ──────────────────────────────────────────────────────
+
+    // (tag, display name) — endonyms kept literal; "System default" is localized.
+    private static readonly (string Tag, string Name)[] _languages =
+    [
+        ("",        ""),   // placeholder; filled at runtime from resource
+        ("en-US",   "English"),
+        ("ko-KR",   "한국어"),
+        ("ja-JP",   "日本語"),
+        ("zh-Hans", "简体中文"),
+        ("de-DE",   "Deutsch"),
+        ("fr-FR",   "Français"),
+        ("es-ES",   "Español"),
+    ];
+
+    private void BuildLanguageCombo()
+    {
+        string systemDefaultLabel = L.Get("LangSystemDefault");
+        string current = _store.Language;
+
+        int selectedIndex = 0;
+        for (int i = 0; i < _languages.Length; i++)
+        {
+            string label = i == 0 ? systemDefaultLabel : _languages[i].Name;
+            LanguageCombo.Items.Add(new ComboBoxItem { Content = label, Tag = _languages[i].Tag });
+            if (!string.IsNullOrEmpty(_languages[i].Tag) && _languages[i].Tag == current)
+                selectedIndex = i;
+        }
+        LanguageCombo.SelectedIndex = selectedIndex;
     }
 
     // ── Capture ────────────────────────────────────────────────────────────────
@@ -207,7 +331,11 @@ public sealed partial class SettingsWindow : Window
             s.Combo.Text       = s.Working.IsValid() ? s.Working.DisplayText : L.Get("NotSet");
             s.Rebind.Content   = L.Get("BtnRebind");
             s.Rebind.IsEnabled = true;
-            if (s.Clear is not null) s.Clear.IsEnabled = true;
+            if (s.Clear is not null)
+            {
+                s.Clear.Content   = L.Get("BtnClear");
+                s.Clear.IsEnabled = true;
+            }
         }
     }
 
@@ -355,6 +483,10 @@ public sealed partial class SettingsWindow : Window
             ShowError(L.Fmt("ErrAutostart", ex.Message).Replace("\\n", "\n"));
             return;
         }
+
+        // Persist language choice (live switch already applied via SelectionChanged).
+        string newLang = LanguageCombo.SelectedItem is ComboBoxItem item && item.Tag is string tag ? tag : "";
+        _store.Language = newLang;
 
         _reregisterHotkeys();
         this.Close();

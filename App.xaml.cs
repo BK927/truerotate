@@ -24,6 +24,7 @@ public partial class App : Application
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         var store   = new OrientationStore();
+        L.SetLanguage(store.Language);
         var reapply = new ReapplyController(store, ShowNotification);
 
         _hotkeyWindow = new HotkeyWindow(OnHotkey, reapply.OnDisplayChange);

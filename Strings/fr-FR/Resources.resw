@@ -74,6 +74,25 @@
     <value>Effacer</value>
   </data>
 
+  <data name="SecGeneral.Text" xml:space="preserve">
+    <value>Général</value>
+  </data>
+  <data name="CardLanguage.Header" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="CardLanguage.Description" xml:space="preserve">
+    <value>Appliqué immédiatement</value>
+  </data>
+  <data name="LangSystemDefault" xml:space="preserve">
+    <value>Langue du système</value>
+  </data>
+  <data name="ToggleOn" xml:space="preserve">
+    <value>Activé</value>
+  </data>
+  <data name="ToggleOff" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+
   <data name="SecBehavior.Text" xml:space="preserve">
     <value>Comportement</value>
   </data>

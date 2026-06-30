@@ -78,6 +78,28 @@
     <value>Clear</value>
   </data>
 
+  <!-- ── XAML: General section (language) ── -->
+  <data name="SecGeneral.Text" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="CardLanguage.Header" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="CardLanguage.Description" xml:space="preserve">
+    <value>Applies immediately</value>
+  </data>
+
+  <!-- ── Code: language selector ── -->
+  <data name="LangSystemDefault" xml:space="preserve">
+    <value>System default</value>
+  </data>
+  <data name="ToggleOn" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="ToggleOff" xml:space="preserve">
+    <value>Off</value>
+  </data>
+
   <!-- ── XAML: Behavior section ── -->
   <data name="SecBehavior.Text" xml:space="preserve">
     <value>Behavior</value>
