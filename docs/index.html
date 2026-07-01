@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TrueRotate – Rotate your display &amp; fix the NVIDIA mouse-axis bug</title>
+<meta name="description" content="Lightweight Windows tray app to rotate any monitor with a hotkey — and fix the NVIDIA bug that puts your mouse on the wrong axis, with dead zones, after rotating.">
+<meta name="author" content="BK927">
+<link rel="canonical" href="https://bk927.github.io/true-rotate/">
+<link rel="icon" href="app_icon.png" type="image/png">
+<meta name="theme-color" content="#0d1117">
+
+<!-- Open Graph / social -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TrueRotate">
+<meta property="og:title" content="TrueRotate – Rotate your display & fix the NVIDIA mouse-axis bug">
+<meta property="og:description" content="A Windows tray app that rotates any monitor with a global hotkey and fixes the NVIDIA wrong-axis / dead-zone mouse bug after rotating.">
+<meta property="og:url" content="https://bk927.github.io/true-rotate/">
+<meta property="og:image" content="https://bk927.github.io/true-rotate/store-banner/en-US-1-banner.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="TrueRotate – Rotate your display & fix the NVIDIA mouse-axis bug">
+<meta name="twitter:description" content="Rotate any monitor with a hotkey and fix the NVIDIA wrong-axis / dead-zone mouse bug after rotating. Windows 10/11.">
+<meta name="twitter:image" content="https://bk927.github.io/true-rotate/store-banner/en-US-1-banner.png">
+
+<!-- Structured data: helps search engines show a rich app result -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "TrueRotate",
+  "operatingSystem": "Windows 10, Windows 11",
+  "applicationCategory": "UtilitiesApplication",
+  "description": "A lightweight Windows system-tray utility that rotates any monitor (0/90/180/270) with a global hotkey or the tray menu, and fixes the NVIDIA bug that leaves the mouse on the wrong axis with unreachable dead zones after rotating.",
+  "url": "https://bk927.github.io/true-rotate/",
+  "downloadUrl": "https://apps.microsoft.com/detail/9NN8R4FRDG71",
+  "image": "https://bk927.github.io/true-rotate/store-banner/en-US-1-banner.png",
+  "screenshot": "https://bk927.github.io/true-rotate/store-banner/en-US-2-hotkeys.png",
+  "softwareVersion": "1.0",
+  "author": { "@type": "Person", "name": "BK927" },
+  "offers": { "@type": "Offer", "price": "0.99", "priceCurrency": "USD" }
+}
+</script>
+
+<style>
+  :root{
+    --bg1:#0d1117; --bg2:#182242; --accent:#3887eb; --accent2:#4aa3ff;
+    --text:#e8ebf0; --muted:#a9adb6; --card:rgba(255,255,255,.04); --border:rgba(255,255,255,.09);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    color:var(--text); line-height:1.6;
+    background:linear-gradient(160deg,#0d1117 0%,#0f1526 45%,#182242 100%);
+    background-attachment:fixed; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+  a{color:var(--accent2);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  header{padding:64px 0 28px;text-align:center}
+  .icon{width:92px;height:92px;filter:drop-shadow(0 8px 24px rgba(0,0,0,.5))}
+  h1{font-size:clamp(30px,5vw,46px);font-weight:700;letter-spacing:-.5px;margin:18px 0 6px;line-height:1.15}
+  h1 .brand{color:#fff}
+  .sub{font-size:clamp(17px,2.4vw,21px);color:var(--muted);max-width:620px;margin:0 auto 26px}
+  .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+  .btn{display:inline-block;padding:13px 26px;border-radius:10px;font-weight:600;font-size:16px}
+  .btn-primary{background:linear-gradient(135deg,#3887eb,#2f6fd0);color:#fff;box-shadow:0 8px 22px rgba(56,135,235,.35)}
+  .btn-primary:hover{text-decoration:none;filter:brightness(1.08)}
+  .btn-ghost{background:var(--card);border:1px solid var(--border);color:var(--text)}
+  .btn-ghost:hover{text-decoration:none;border-color:var(--accent)}
+  .note{font-size:13px;color:var(--muted);margin-top:6px}
+
+  .hero-img{display:block;width:100%;max-width:900px;margin:40px auto 0;border-radius:14px;
+    border:1px solid var(--border);box-shadow:0 30px 70px rgba(0,0,0,.5)}
+
+  section{padding:52px 0;border-top:1px solid var(--border)}
+  h2{font-size:clamp(23px,3.4vw,30px);font-weight:700;letter-spacing:-.3px;margin-bottom:14px}
+  h2 .bar{display:inline-block;width:44px;height:5px;background:var(--accent);border-radius:3px;vertical-align:middle;margin-right:12px}
+  p.lead{color:var(--text);font-size:18px;max-width:760px}
+  p.lead + p.lead{margin-top:14px}
+  .muted{color:var(--muted)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:26px}
+  .feat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+  .feat h3{font-size:17px;margin-bottom:6px}
+  .feat p{font-size:14.5px;color:var(--muted)}
+
+  .shots{display:grid;grid-template-columns:1fr;gap:22px;margin-top:26px}
+  .shot img{width:100%;border-radius:12px;border:1px solid var(--border);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+
+  table{width:100%;border-collapse:collapse;margin-top:22px;background:var(--card);border-radius:12px;overflow:hidden}
+  th,td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--border);font-size:15px}
+  th{background:rgba(255,255,255,.05);font-weight:600}
+  tr:last-child td{border-bottom:none}
+  kbd{font-family:Consolas,monospace;background:rgba(255,255,255,.08);border:1px solid var(--border);
+    border-radius:5px;padding:2px 7px;font-size:13px}
+
+  .final{text-align:center}
+  footer{border-top:1px solid var(--border);padding:34px 0 60px;text-align:center;color:var(--muted);font-size:14px}
+  footer a{margin:0 8px}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <img class="icon" src="app_icon.png" alt="TrueRotate app icon — two overlapping monitor tiles inside a rotation ring">
+    <h1>Rotate your display — and fix the<br><span class="brand">NVIDIA mouse-axis bug</span></h1>
+    <p class="sub">TrueRotate is a lightweight Windows tray app that rotates any monitor from a global hotkey or the tray menu — and cures the NVIDIA rotation bug that puts your mouse on the wrong axis.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://apps.microsoft.com/detail/9NN8R4FRDG71">Get it from the Microsoft Store</a>
+      <a class="btn btn-ghost" href="https://github.com/BK927/true-rotate">Free &amp; open source on GitHub</a>
+    </div>
+    <p class="note">Windows 10 &amp; 11 · no admin required · a modern replacement for iRotate</p>
+    <img class="hero-img" src="store-banner/en-US-1-banner.png" alt="TrueRotate — rotate your screen and keep your cursor on the right axis; fixes the NVIDIA rotation bug">
+  </div>
+</header>
+
+<main>
+  <section id="problem">
+    <div class="wrap">
+      <h2><span class="bar"></span>The NVIDIA screen-rotation bug</h2>
+      <p class="lead">Rotated a monitor on an NVIDIA system and your <strong>mouse suddenly moves on the wrong axis</strong>? You push the cursor sideways and it travels up and down instead — and part of the screen becomes a <strong>dead zone the cursor can't reach</strong>.</p>
+      <p class="lead muted">It usually starts right after the NVIDIA app or Control Panel changes any display setting, and a reboot doesn't fix it. This is a well-known NVIDIA driver bug — not something you did wrong.</p>
+    </div>
+  </section>
+
+  <section id="fix">
+    <div class="wrap">
+      <h2><span class="bar"></span>How TrueRotate fixes it</h2>
+      <p class="lead">TrueRotate rebuilds the cursor's coordinate mapping <strong>every time it rotates</strong>, using the Windows Connecting and Configuring Displays (CCD) API with forced mode re-enumeration. The wrong-axis behavior and dead zones simply never appear.</p>
+      <p class="lead muted">Rotate any monitor to 0°, 90°, 180° or 270° from a global hotkey or the tray menu. As long as you rotate from TrueRotate, the mouse tracks normally on every display — even in multi-monitor and multi-GPU setups.</p>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2><span class="bar"></span>Features</h2>
+      <div class="grid">
+        <div class="feat"><h3>Global rotation hotkeys</h3><p>Ctrl+Alt+Shift+Arrow by default, fully rebindable. Rotate from anywhere without opening Settings.</p></div>
+        <div class="feat"><h3>Fixes the NVIDIA axis bug</h3><p>Remaps the cursor on every rotation, so the wrong-axis movement and dead zones never come back.</p></div>
+        <div class="feat"><h3>Per-monitor hotkeys</h3><p>Give each display its own dedicated rotation keys, independent of cursor position.</p></div>
+        <div class="feat"><h3>One-key cycle</h3><p>Step through 0 → 90 → 180 → 270 with a single shortcut.</p></div>
+        <div class="feat"><h3>Auto-reapply</h3><p>If another app (like the NVIDIA panel) changes the orientation, TrueRotate restores your saved one.</p></div>
+        <div class="feat"><h3>Clean &amp; quiet</h3><p>Starts with Windows, Fluent (WinUI 3) settings, 7 languages. No ads, no tracking.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screenshots">
+    <div class="wrap">
+      <h2><span class="bar"></span>A look inside</h2>
+      <div class="shots">
+        <div class="shot"><img src="store-banner/en-US-2-hotkeys.png" alt="TrueRotate global rotation hotkeys settings — rebindable Ctrl+Alt+Shift+Arrow to rotate the display"></div>
+        <div class="shot"><img src="store-banner/en-US-3-nvidia-fix.png" alt="Auto-reapply setting that fixes the NVIDIA mouse-axis bug after rotating a monitor"></div>
+        <div class="shot"><img src="store-banner/en-US-4-per-monitor.png" alt="Per-monitor rotation hotkeys for multi-monitor Windows setups"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="hotkeys">
+    <div class="wrap">
+      <h2><span class="bar"></span>Default hotkeys</h2>
+      <table>
+        <thead><tr><th>Shortcut</th><th>Rotation</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>↑</kbd></td><td>0° — landscape</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>→</kbd></td><td>90° — portrait</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>↓</kbd></td><td>180° — landscape (flipped)</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>←</kbd></td><td>270° — portrait (flipped)</td></tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin-top:14px">By default a hotkey rotates the monitor under your cursor. All shortcuts are rebindable in Settings.</p>
+    </div>
+  </section>
+
+  <section id="get" class="final">
+    <div class="wrap">
+      <h2 style="text-align:center"><span class="bar"></span>Get TrueRotate</h2>
+      <p class="lead" style="margin:0 auto 24px">The Microsoft Store version installs in one click and updates automatically. Prefer to build it yourself? It's free and open source on GitHub.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://apps.microsoft.com/detail/9NN8R4FRDG71">Get it from the Microsoft Store</a>
+        <a class="btn btn-ghost" href="https://github.com/BK927/true-rotate/releases/latest">Download on GitHub</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>
+      <a href="https://apps.microsoft.com/detail/9NN8R4FRDG71">Microsoft Store</a> ·
+      <a href="https://github.com/BK927/true-rotate">GitHub</a> ·
+      <a href="https://github.com/BK927/true-rotate/blob/main/PRIVACY.md">Privacy</a>
+    </p>
+    <p style="margin-top:10px">TrueRotate — Windows display rotation utility &amp; NVIDIA rotation-bug fix · MIT licensed · © 2026 BK927</p>
+  </div>
+</footer>
+</body>
+</html>

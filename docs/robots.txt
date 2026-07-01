@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bk927.github.io/true-rotate/sitemap.xml
