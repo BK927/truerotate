@@ -43,9 +43,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-
-    <!-- Fluent SettingsCard / SettingsExpander controls (Windows 11 settings look) -->
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
   </ItemGroup>
 
   <ItemGroup>

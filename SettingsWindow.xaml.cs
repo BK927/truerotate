@@ -1,4 +1,3 @@
-using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI.Input;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -38,7 +37,7 @@ public sealed partial class SettingsWindow : Window
     private readonly Action           _reregisterHotkeys;
 
     // Per-monitor cards tracked for re-localization on language switch.
-    private readonly List<(SettingsCard Card, uint Degrees)> _perMonCards = new();
+    private readonly List<(SettingCard Card, uint Degrees)> _perMonCards = new();
 
     public SettingsWindow(OrientationStore store, Action reregisterHotkeys)
     {
@@ -202,18 +201,28 @@ public sealed partial class SettingsWindow : Window
         foreach (var mon in monitors)
         {
             var set = _store.GetMonitorHotkeys(mon.DevicePath);
-            var expander = new SettingsExpander { Header = mon.FriendlyName, IsExpanded = false };
 
-            AddMonitorRow(expander, mon, set.Rotate0.Clone(),   0,   badgeStyle, textStyle);
-            AddMonitorRow(expander, mon, set.Rotate90.Clone(),  90,  badgeStyle, textStyle);
-            AddMonitorRow(expander, mon, set.Rotate180.Clone(), 180, badgeStyle, textStyle);
-            AddMonitorRow(expander, mon, set.Rotate270.Clone(), 270, badgeStyle, textStyle);
+            // Native Expander hosts a single Content, so collect the rows in a StackPanel.
+            var rows = new StackPanel { Spacing = 4 };
+            var expander = new Expander
+            {
+                Header                    = mon.FriendlyName,
+                IsExpanded                = false,
+                HorizontalAlignment       = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                Content                   = rows,
+            };
+
+            AddMonitorRow(rows, mon, set.Rotate0.Clone(),   0,   badgeStyle, textStyle);
+            AddMonitorRow(rows, mon, set.Rotate90.Clone(),  90,  badgeStyle, textStyle);
+            AddMonitorRow(rows, mon, set.Rotate180.Clone(), 180, badgeStyle, textStyle);
+            AddMonitorRow(rows, mon, set.Rotate270.Clone(), 270, badgeStyle, textStyle);
 
             PerMonitorPanel.Children.Add(expander);
         }
     }
 
-    private void AddMonitorRow(SettingsExpander expander, MonitorInfo mon, HotkeyBinding working,
+    private void AddMonitorRow(StackPanel rows, MonitorInfo mon, HotkeyBinding working,
                                uint deg, Style? badgeStyle, Style? textStyle)
     {
         var combo = new TextBlock();
@@ -237,8 +246,8 @@ public sealed partial class SettingsWindow : Window
         panel.Children.Add(rebind);
         panel.Children.Add(clear);
 
-        var card = new SettingsCard { Header = L.Fmt("PerMonRotateTo", deg), Content = panel };
-        expander.Items.Add(card);
+        var card = new SettingCard { Header = L.Fmt("PerMonRotateTo", deg), ActionContent = panel };
+        rows.Children.Add(card);
         _perMonCards.Add((card, deg));
 
         _slots.Add(new Slot
